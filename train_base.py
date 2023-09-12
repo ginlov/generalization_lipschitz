@@ -7,7 +7,6 @@ from loguru import logger
 import torch
 import time
 import shutil
-import argparse
 import numpy as np
 import os
 
@@ -99,10 +98,6 @@ def train(model, dataset, log_file_name="", log_folder="log", clamp_value=-1, fr
     val_loader = torch.utils.data.DataLoader(
         val_dataset, batch_size=batch_size, shuffle=False,
         num_workers=workers, pin_memory=True)
-    for images, label in train_loader:
-        print(images)
-    for images, label in val_loader:
-        print(images)
     ###################################
     ## LOADING COMPULSORY COMPONENTS ##
     ###################################

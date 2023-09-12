@@ -1,6 +1,7 @@
 from model._resnet import BasicBlock, _resnet, Bottleneck
 from model._vgg import _vgg
 from model._mlp import _mlp
+from model._convnext import _convnext, CNBlockConfig
 
 #############################################
 # Resnet50: 56 modified layers ##############
@@ -64,6 +65,16 @@ MODEL_CONFIG = {
         "cfg": [1024, 1024, 512, 512, 256, 256, 128, 64],
         "norm_layer": None,
         "num_classes": 10
+    },
+    "convnext": {
+        "block_setting": [
+            CNBlockConfig(96, 192, 3),
+            CNBlockConfig(192, 384, 3),
+            CNBlockConfig(384, 768, 9),
+            CNBlockConfig(768, None, 3),
+        ],
+        "stochastic_depth_prob": 0.1,
+        "progress": False
     }
 }
 
@@ -72,5 +83,6 @@ MODEL_MAP = {
     "resnet34": _resnet,
     "resnet50": _resnet,
     "mlp": _mlp,
-    "vgg": _vgg
+    "vgg": _vgg,
+    "convnext": _convnext
 }

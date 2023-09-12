@@ -4,8 +4,9 @@ import torch
 from torch import nn, Tensor
 from torch.nn import functional as F
 
-from ..ops.misc import Conv2dNormActivation, Permute
-from ..ops.stochastic_depth import StochasticDepth
+from torchvision.ops.misc import Conv2dNormActivation, Permute
+from torchvision.ops.stochastic_depth import StochasticDepth
+from model.modified_layer import *
 
 
 __all__ = [
@@ -38,12 +39,12 @@ class CNBlock(nn.Module):
             norm_layer = partial(nn.LayerNorm, eps=1e-6)
 
         self.block = nn.Sequential(
-            nn.Conv2d(dim, dim, kernel_size=7, padding=3, groups=dim, bias=True),
+            ModifiedConv2d(dim, dim, kernel_size=7, padding=3, groups=dim, bias=True),
             Permute([0, 2, 3, 1]),
             norm_layer(dim),
-            nn.Linear(in_features=dim, out_features=4 * dim, bias=True),
+            ModifiedLinear(in_features=dim, out_features=4 * dim, bias=True),
             nn.GELU(),
-            nn.Linear(in_features=4 * dim, out_features=dim, bias=True),
+            ModifiedLinear(in_features=4 * dim, out_features=dim, bias=True),
             Permute([0, 3, 1, 2]),
         )
         self.layer_scale = nn.Parameter(torch.ones(dim, 1, 1) * layer_scale)
@@ -134,19 +135,21 @@ class ConvNeXt(nn.Module):
                 layers.append(
                     nn.Sequential(
                         norm_layer(cnf.input_channels),
-                        nn.Conv2d(cnf.input_channels, cnf.out_channels, kernel_size=2, stride=2),
+                        ModifiedConv2d(cnf.input_channels, cnf.out_channels, kernel_size=2, stride=2),
                     )
                 )
 
         self.features = nn.Sequential(*layers)
-        self.avgpool = nn.AdaptiveAvgPool2d(1)
+        self.avgpool = ModifiedAdaptiveAvgPool2d(1)
 
         lastblock = block_setting[-1]
         lastconv_output_channels = (
             lastblock.out_channels if lastblock.out_channels is not None else lastblock.input_channels
         )
         self.classifier = nn.Sequential(
-            norm_layer(lastconv_output_channels), nn.Flatten(1), nn.Linear(lastconv_output_channels, num_classes)
+            norm_layer(lastconv_output_channels), 
+            nn.Flatten(1), 
+            ModifiedLinear(lastconv_output_channels, num_classes)
         )
 
         for m in self.modules():
