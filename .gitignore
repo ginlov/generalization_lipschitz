@@ -1,2 +1,8 @@
 .DS_Store
 data/
+*/.ipynb_checkpoints/*
+.ipynb_checkpoints/*
+*.tar
+*__pycache__*
+*cifar_train*
+*cifar_val*
