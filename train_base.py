@@ -42,7 +42,6 @@ def train(model, dataset, log_file_name="", log_folder="log", clamp_value=-1, fr
                                     train=False,
                                     transform=transforms.Compose([
                                         transforms.ToTensor(),
-                                        transform
                                     ]),
                                     download=True)
     elif dataset == "MNIST":
