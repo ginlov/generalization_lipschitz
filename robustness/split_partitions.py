@@ -32,25 +32,35 @@ def assign_partition(
 
 def calculate_robustness(
     model: torch.nn.Module,
+    train_dataset: torch.utils.data.Dataset,
     test_dataset: torch.utils.data.Dataset,
-    indices: torch.Tensor,
+    train_indices: torch.Tensor,
+    test_indices: torch.Tensor,
     loss_func,
     ):
+    train_dataloader = torch.utils.data.DataLoader(train_dataset, batch_size=128, shuffle=False)
     dataloader = torch.utils.data.DataLoader(test_dataset, batch_size=128, shuffle=False)
     loss = []
+    train_loss = []
     model.eval()
     with torch.no_grad():
         for batch in dataloader:
             output = model(batch[0])
             loss.append(torch.Tensor(loss_func(output, batch[1])))
+        for batch in train_dataloader:
+            output = model(batch[0])
+            train_loss.append(torch.Tensor(loss_func(output, batch[1])))
     loss = torch.concatenate(loss)
-    max_index = torch.max(indices)
+    train_loss = torch.concatenate(train_loss)
+    max_index = torch.max(test_indices)
     epsilon = 0.0
     for i in range(max_index + 1):
-        loss_values = loss[(indices==i).nonzero()]
-        if loss_values.shape[0] < 2:
+        train_loss_values = train_loss[(train_indices==i).nonzero()]
+        loss_values = loss[(test_indices==i).nonzero()]
+        
+        if loss_values.shape[0] < 1 or train_loss_values.shape[0] < 1:
             continue
-        loss_subtraction = torch.abs(torch.pdist(loss_values, p=1))
-        epsilon = max(epsilon, torch.max(loss_subtraction).item())
+        loss_subtraction = torch.abs(torch.cdist(loss_values, train_loss_values, p=1))
+        epsilon = max(epsilon, torch.max(loss_subtraction.reshape(-1)).item())
 
     return epsilon
