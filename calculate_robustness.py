@@ -49,20 +49,23 @@ def cal_robustness(args):
     epsilon_list = []
 
     for num_cluster in num_clusters:
-        centroids = select_partition_centroid(num_cluster, train_dataset)
-        train_indices = assign_partition(train_dataset, centroids)
-        test_indices = assign_partition(val_dataset, centroids)
-        max_index = torch.max(test_indices)
-        epsilon = 0.0
-        for i in range(max_index + 1):
-            train_loss_values = train_loss[(train_indices==i).nonzero()]
-            loss_values = loss[(test_indices==i).nonzero()]
-        
-            if loss_values.shape[0] < 1 or train_loss_values.shape[0] < 1:
-                continue
-            loss_subtraction = torch.abs(torch.cdist(loss_values, train_loss_values, p=1))
-            epsilon = max(epsilon, torch.max(loss_subtraction.reshape(-1)).item())
-        epsilon_list.append(epsilon)
+        local_epsilon = []
+        for k in range(10):
+            centroids = select_partition_centroid(num_cluster, train_dataset)
+            train_indices = assign_partition(train_dataset, centroids)
+            test_indices = assign_partition(val_dataset, centroids)
+            max_index = torch.max(test_indices)
+            epsilon = 0.0
+            for i in range(max_index + 1):
+                train_loss_values = train_loss[(train_indices==i).nonzero()]
+                loss_values = loss[(test_indices==i).nonzero()]
+            
+                if loss_values.shape[0] < 1 or train_loss_values.shape[0] < 1:
+                    continue
+                loss_subtraction = torch.abs(torch.cdist(loss_values, train_loss_values, p=1))
+                epsilon = max(epsilon, torch.max(loss_subtraction.reshape(-1)).item())
+            local_epsilon.append(epsilon)
+        epsilon_list.append(f"{torch.mean(torch.Tensor(local_epsilon)).item()}+-{torch.var(torch.Tensor(local_epsilon)).item()}")
     print(epsilon_list)
  
 if __name__ == "__main__":
