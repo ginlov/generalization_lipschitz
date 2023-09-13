@@ -14,12 +14,12 @@ def cal_robustness(args):
     model.load_state_dict(model_checkpoint["state_dict"])
 
     if args.dataset == "CIFAR10":
-        train_dataset = torchvision.dataset.CIFAR10(root="cifar_train", train=True, transform=torchision.transforms.Compose([
-            torchvision.transforms.RanddomHorizontalFlip(),
+        train_dataset = torchvision.datasets.CIFAR10(root="cifar_train", train=True, transform=torchvision.transforms.Compose([
+            torchvision.transforms.RandomHorizontalFlip(),
             torchvision.transforms.ToTensor()
         ]),
                                                    download=True)
-        val_dataset = torchvision.dataset.CIFAR10(root="cifar_val", train=False, transform=torchision.transforms.Compose([
+        val_dataset = torchvision.datasets.CIFAR10(root="cifar_val", train=False, transform=torchvision.transforms.Compose([
             torchvision.transforms.ToTensor()
         ]),
                                                    download=True)
