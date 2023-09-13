@@ -9,7 +9,7 @@ import argparse
 num_clusters =  [100, 1000, 5000, 10000]
 
 def cal_robustness(args):
-    model = MODEL_MAP[args.model](MODEL_CONFIG[args.model])
+    model = MODEL_MAP[args.model](**MODEL_CONFIG[args.model])
     model_checkpoint = torch.load(args.model_checkpoint, map_location="cpu")
     model.load_state_dict(model_checkpoint["state_dict"])
 
