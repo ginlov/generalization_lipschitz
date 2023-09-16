@@ -24,7 +24,7 @@ def cal_robustness(args):
         ]),
                                                    download=True)
     elif args.dataset == "SVHN":
-        train_dataset = torch.datasets.SVHN(root='svhn_train', split='train',
+        train_dataset = torchvision.datasets.SVHN(root='svhn_train', split='train',
                                             transform=torchvision.transforms.Compose([
                                             torchvision.transforms.RandomHorizontalFlip(),
                                             torchvision.transforms.ToTensor(),
