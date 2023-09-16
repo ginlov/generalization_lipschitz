@@ -32,9 +32,9 @@ class MLP(nn.Module):
         )
 
     def forward(self, x):
-        x = torch.flatten(x, 1)
+        #x = torch.flatten(x, 1)
         #Comment the above and Uncomment the following line for calculate Local_lipschitz
-        #torch.view(-1, 3*32*32)
+        torch.view(-1, 3*32*32)
         x = self.features_extractor(x)
         x = self.classifier(x)
         return x
