@@ -40,7 +40,7 @@ torch.manual_seed(0)
 # Create a small model and load pre-trained parameters.
 model_ori = build_model(width=4, linear_size=32)
 model_ori = MLP(in_features = 3*32*32, cfg =  [1024, 512, 256, 64], norm_layer = None, num_classes = 10)
-model_ori.load_state_dict(torch.load('checkpoints/model_best.pth.tar')["state_dict"])
+model_ori.load_state_dict(torch.load('/kaggle/input/checkpointsMLP/model_best.pth.tar')["state_dict"])
 device = 'cuda' if torch.cuda.is_available() else 'cpu'
 model_ori = model_ori.to(device)
 print('Model:', model_ori)
@@ -93,7 +93,8 @@ ret_ori = torch.autograd.grad(y.sum(), x0)[0].abs().sum().view(-1)
 ret_new = model(x0, torch.ones(1, 10).to(x0)).view(-1)
 assert torch.allclose(ret_ori, ret_new)
 total_lipschitz = 0
-for i in range(5):
+list_of_number = []
+for i in range(10):
 
     for eps in [1/255]:
         x_i = test_data[i][0].unsqueeze(0).to(device)
@@ -101,9 +102,11 @@ for i in range(5):
         x = BoundedTensor(x_i, PerturbationLpNorm(norm=np.inf, eps=eps))
         # Compute the Linf locaal Lipschitz constant
         result = model.compute_jacobian_bounds(x)
+        list_of_number.append(result)
         total_lipschitz += result * 2/255 * 1/1000
         #print(f'Linf local Lipschitz constant for eps={eps:.5f}', result)
 print("Our term is:" + total_lipschitz)
+print(list_of_number)
 """
 # Example 3: Convert the model for Jacobian-Vector Product (JVP) computation
 model = BoundedModule(model_ori, x0, device=device)
