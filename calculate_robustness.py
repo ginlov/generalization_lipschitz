@@ -23,8 +23,20 @@ def cal_robustness(args):
             torchvision.transforms.ToTensor()
         ]),
                                                    download=True)
+    elif args.dataset == "SVHN":
+        train_dataset = torch.datasets.SVHN(root='svhn_train', split='train',
+                                            transform=torchvision.transforms.Compose([
+                                            torchvision.transforms.RandomHorizontalFlip(),
+                                            torchvision.transforms.ToTensor(),
+                                            ]),
+                                            download=True)
+        val_dataset = torchvision.datasets.SVHN(root="svhn_val", split='test', 
+                                                transform=torchvision.transforms.Compose([
+                                                torchvision.transforms.ToTensor()]),
+                                                download=True)
     else:
         raise NotImplementedError()
+
 
     loss_func = torch.nn.CrossEntropyLoss(reduction='none')
 

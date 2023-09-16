@@ -64,14 +64,12 @@ def train(model, dataset, log_file_name="", log_folder="log", clamp_value=-1, fr
                                         transform=transforms.Compose([
                                         transforms.RandomHorizontalFlip(),
                                         transforms.ToTensor(),
-                                        transform,
                                         ]),
                                         download=True)
         val_dataset = datasets.SVHN(root="svhn_val",
                                     split = "test",
                                     transform=transforms.Compose([
                                         transforms.ToTensor(),
-                                        transform
                                     ]),
                                     download=True)
     elif dataset == "Fashion_MNIST":
