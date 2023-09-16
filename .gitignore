@@ -6,3 +6,4 @@ data/
 *__pycache__*
 *cifar_train*
 *cifar_val*
+.DS_Store
