@@ -94,7 +94,7 @@ ret_new = model(x0, torch.ones(1, 10).to(x0)).view(-1)
 assert torch.allclose(ret_ori, ret_new)
 total_lipschitz = 0
 list_of_number = []
-for i in range(10):
+for i in range(8):
 
     for eps in [1/255]:
         x_i = test_data[i][0].unsqueeze(0).to(device)
