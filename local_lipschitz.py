@@ -21,19 +21,6 @@ from auto_LiRPA.perturbations import PerturbationLpNorm
 from auto_LiRPA.utils import Flatten
 from model._mlp import MLP
 import gc
-def build_model(in_ch=3, in_dim=32, width=32, linear_size=256):
-    model = nn.Sequential(
-        nn.Conv2d(in_ch, width, 3, stride=1, padding=0),
-        nn.ReLU(),
-        nn.Conv2d(width, width, 3, stride=1, padding=0),
-        nn.ReLU(),
-        Flatten(),
-        nn.Linear(width * (in_dim-4)**2, linear_size),
-        nn.ReLU(),
-        nn.Linear(linear_size, 10)
-    )
-    return model
-
 
 torch.manual_seed(0)
 
@@ -81,7 +68,6 @@ total_lipschitz = 0
 list_of_number = []
 for i in range(8):
         eps = 1./255
-        model_ori = build_model(width=4, linear_size=32)
         model_ori = MLP(in_features = 3*32*32, cfg =  [1024, 512, 256, 64], norm_layer = None, num_classes = 10)
         model_ori.load_state_dict(torch.load('/kaggle/input/checkpointsMLP/model_best.pth.tar')["state_dict"])
         device = 'cuda' if torch.cuda.is_available() else 'cpu'
