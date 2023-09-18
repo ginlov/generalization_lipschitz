@@ -106,6 +106,7 @@ for i in range(8):
         list_of_number.append(result)
         total_lipschitz += result * 2/255 * 1/1000
         #print(f'Linf local Lipschitz constant for eps={eps:.5f}', result)
+        model.zero_grad()
         model.cpu()
         del model
         gc.collect()
