@@ -38,12 +38,6 @@ def build_model(in_ch=3, in_dim=32, width=32, linear_size=256):
 torch.manual_seed(0)
 
 # Create a small model and load pre-trained parameters.
-model_ori = build_model(width=4, linear_size=32)
-model_ori = MLP(in_features = 3*32*32, cfg =  [1024, 512, 256, 64], norm_layer = None, num_classes = 10)
-model_ori.load_state_dict(torch.load('/kaggle/input/checkpointsMLP/model_best.pth.tar')["state_dict"])
-device = 'cuda' if torch.cuda.is_available() else 'cpu'
-model_ori = model_ori.to(device)
-print('Model:', model_ori)
 
 # Prepare the dataset
 test_data = datasets.CIFAR10('./data', train=False, download=True,
@@ -89,6 +83,11 @@ list_of_number = []
 for i in range(8):
 
     for eps in [1/255]:
+        model_ori = build_model(width=4, linear_size=32)
+        model_ori = MLP(in_features = 3*32*32, cfg =  [1024, 512, 256, 64], norm_layer = None, num_classes = 10)
+        model_ori.load_state_dict(torch.load('/kaggle/input/checkpointsMLP/model_best.pth.tar')["state_dict"])
+        device = 'cuda' if torch.cuda.is_available() else 'cpu'
+        model_ori = model_ori.to(device)
         x_i = test_data[i][0].unsqueeze(0).to(device)
         # The input region considered is an Linf ball with radius eps around x0.
         model = BoundedModule(model_ori, x_i, device=device)
@@ -107,8 +106,10 @@ for i in range(8):
         total_lipschitz += result * 2/255 * 1/1000
         #print(f'Linf local Lipschitz constant for eps={eps:.5f}', result)
         model.zero_grad()
+        model_ori.zero_grad()
+        model_ori.cpu()
         model.cpu()
-        del model
+        del model, model_ori
         gc.collect()
         torch.cuda.empty_cache()
 print("Our term is:" + total_lipschitz)
