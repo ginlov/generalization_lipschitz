@@ -45,7 +45,6 @@ test_data = datasets.CIFAR10('./data', train=False, download=True,
         transforms.ToTensor(),
         transforms.Normalize(
             mean=[0.4914, 0.4822, 0.4465], std=[0.2009, 0.2009, 0.2009])]))
-x0 = test_data[0][0].unsqueeze(0).to(device)
 
 """
 # Example 1: Convert the model for Jacobian bound computation
