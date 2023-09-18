@@ -92,6 +92,7 @@ for i in range(8):
         model = BoundedModule(model_ori, x_i, device=device)
         # Set norm=np.inf for Linf local Lipschitz constant
         model.augment_gradient_graph(x_i, norm=np.inf)
+        torch.cuda.synchronize()
         
         # Sanity check to ensure that the new graph matches the original gradient computation
         """
