@@ -100,7 +100,8 @@ for i in range(8):
         model.cpu()
         result.cpu()
         x.cpu()
-        del model, model_ori, result, x
+        x_i.cpu()
+        del model, model_ori, result, x, x_i
         gc.collect()
         torch.cuda.empty_cache()
 print("Our term is:" + total_lipschitz)
