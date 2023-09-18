@@ -20,7 +20,7 @@ from auto_LiRPA import BoundedModule, BoundedTensor
 from auto_LiRPA.perturbations import PerturbationLpNorm
 from auto_LiRPA.utils import Flatten
 from model._mlp import MLP
-
+import gc
 def build_model(in_ch=3, in_dim=32, width=32, linear_size=256):
     model = nn.Sequential(
         nn.Conv2d(in_ch, width, 3, stride=1, padding=0),
@@ -83,15 +83,7 @@ for eps in [0]:
 
 """
 # Example 2: Convert the model for Linf local Lipschitz constant computation
-model = BoundedModule(model_ori, x0, device=device)
-# Set norm=np.inf for Linf local Lipschitz constant
-model.augment_gradient_graph(x0, norm=np.inf)
 
-# Sanity check to ensure that the new graph matches the original gradient computation
-y = model_ori(x0.requires_grad_(True))
-ret_ori = torch.autograd.grad(y.sum(), x0)[0].abs().sum().view(-1)
-ret_new = model(x0, torch.ones(1, 10).to(x0)).view(-1)
-assert torch.allclose(ret_ori, ret_new)
 total_lipschitz = 0
 list_of_number = []
 for i in range(8):
@@ -99,12 +91,25 @@ for i in range(8):
     for eps in [1/255]:
         x_i = test_data[i][0].unsqueeze(0).to(device)
         # The input region considered is an Linf ball with radius eps around x0.
+        model = BoundedModule(model_ori, x_i, device=device)
+        # Set norm=np.inf for Linf local Lipschitz constant
+        model.augment_gradient_graph(x_i, norm=np.inf)
+        
+        # Sanity check to ensure that the new graph matches the original gradient computation
+        y = model_ori(x_i.requires_grad_(True))
+        ret_ori = torch.autograd.grad(y.sum(), x0)[0].abs().sum().view(-1)
+        ret_new = model(x_i, torch.ones(1, 10).to(x0)).view(-1)
+        assert torch.allclose(ret_ori, ret_new)
         x = BoundedTensor(x_i, PerturbationLpNorm(norm=np.inf, eps=eps))
         # Compute the Linf locaal Lipschitz constant
         result = model.compute_jacobian_bounds(x)
         list_of_number.append(result)
         total_lipschitz += result * 2/255 * 1/1000
         #print(f'Linf local Lipschitz constant for eps={eps:.5f}', result)
+        model.cpu()
+        del model
+        gc.collect()
+        torch.cuda.empty_cache()
 print("Our term is:" + total_lipschitz)
 print(list_of_number)
 """
