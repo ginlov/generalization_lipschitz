@@ -97,7 +97,7 @@ for i in range(8):
         
         # Sanity check to ensure that the new graph matches the original gradient computation
         y = model_ori(x_i.requires_grad_(True))
-        ret_ori = torch.autograd.grad(y.sum(), x_i)[0].abs().sum().view(-1)
+        ret_ori = torch.autograd.grad(y.sum(), x_i, retain_graph = False)[0].abs().sum().view(-1)
         ret_new = model(x_i, torch.ones(1, 10).to(x_i)).view(-1)
         assert torch.allclose(ret_ori, ret_new)
         x = BoundedTensor(x_i, PerturbationLpNorm(norm=np.inf, eps=eps))
