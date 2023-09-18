@@ -87,6 +87,7 @@ for i in range(8):
         device = 'cuda' if torch.cuda.is_available() else 'cpu'
         model_ori = model_ori.to(device)
         x_i = test_data[i][0].unsqueeze(0).to(device)
+        torch.cuda.synchronize()
         # The input region considered is an Linf ball with radius eps around x0.
         model = BoundedModule(model_ori, x_i, device=device)
         # Set norm=np.inf for Linf local Lipschitz constant
@@ -102,6 +103,7 @@ for i in range(8):
         x = BoundedTensor(x_i, PerturbationLpNorm(norm=np.inf, eps=eps))
         # Compute the Linf locaal Lipschitz constant
         result = model.compute_jacobian_bounds(x)
+        torch.cuda.synchronize()
         list_of_number.append(result)
         total_lipschitz += result * 2/255 * 1/1000
         #print(f'Linf local Lipschitz constant for eps={eps:.5f}', result)
