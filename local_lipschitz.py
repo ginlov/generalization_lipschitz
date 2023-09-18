@@ -80,7 +80,7 @@ for eps in [0]:
 total_lipschitz = 0
 list_of_number = []
 for i in range(8):
-        eps = 0
+        eps = 1./255
         model_ori = build_model(width=4, linear_size=32)
         model_ori = MLP(in_features = 3*32*32, cfg =  [1024, 512, 256, 64], norm_layer = None, num_classes = 10)
         model_ori.load_state_dict(torch.load('/kaggle/input/checkpointsMLP/model_best.pth.tar')["state_dict"])
