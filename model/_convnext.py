@@ -1,4 +1,5 @@
 from typing import Any, Callable, List, Optional, Sequence
+from functools import partial
 
 import torch
 from torch import nn, Tensor
