@@ -95,7 +95,7 @@ for i in range(8):
         total_lipschitz += result * 2/255 * 1/1000
         #print(f'Linf local Lipschitz constant for eps={eps:.5f}', result)
         torch.cuda.empty_cache()
-print("Our term is:" + total_lipschitz)
+print(total_lipschitz)
 print(list_of_number)
 """
 # Example 3: Convert the model for Jacobian-Vector Product (JVP) computation
