@@ -32,7 +32,10 @@ test_data = datasets.CIFAR10('./data', train=False, download=True,
         transforms.ToTensor(),
         transforms.Normalize(
             mean=[0.4914, 0.4822, 0.4465], std=[0.2009, 0.2009, 0.2009])]))
-
+model_ori = MLP(in_features = 3*32*32, cfg =  [1024, 512, 256, 64], norm_layer = None, num_classes = 10)
+model_ori.load_state_dict(torch.load('/kaggle/input/checkpointsMLP/model_best.pth.tar')["state_dict"])
+device = 'cuda' if torch.cuda.is_available() else 'cpu'
+model_ori = model_ori.to(device)
 """
 # Example 1: Convert the model for Jacobian bound computation
 model = BoundedModule(model_ori, x0, device=device)
@@ -68,10 +71,6 @@ total_lipschitz = 0
 list_of_number = []
 for i in range(8):
         eps = 1./255
-        model_ori = MLP(in_features = 3*32*32, cfg =  [1024, 512, 256, 64], norm_layer = None, num_classes = 10)
-        model_ori.load_state_dict(torch.load('/kaggle/input/checkpointsMLP/model_best.pth.tar')["state_dict"])
-        device = 'cuda' if torch.cuda.is_available() else 'cpu'
-        model_ori = model_ori.to(device)
         x_i = test_data[i][0].unsqueeze(0).to(device)
         torch.cuda.synchronize()
         # The input region considered is an Linf ball with radius eps around x0.
@@ -90,19 +89,11 @@ for i in range(8):
         x = BoundedTensor(x_i, PerturbationLpNorm(norm=np.inf, eps=eps))
         # Compute the Linf locaal Lipschitz constant
         result = model.compute_jacobian_bounds(x)
+        result = result.detach().cpu().item()
         torch.cuda.synchronize()
         list_of_number.append(result)
         total_lipschitz += result * 2/255 * 1/1000
         #print(f'Linf local Lipschitz constant for eps={eps:.5f}', result)
-        model.zero_grad()
-        model_ori.zero_grad()
-        model_ori.cpu()
-        model.cpu()
-        result.cpu()
-        x.cpu()
-        x_i.cpu()
-        del model, model_ori, result, x, x_i
-        gc.collect()
         torch.cuda.empty_cache()
 print("Our term is:" + total_lipschitz)
 print(list_of_number)
