@@ -4,6 +4,7 @@ from robustness.split_partitions import *
 
 import torch
 import torchvision
+from torchvision import datasets, transforms
 import argparse
 
 num_clusters =  [100, 1000, 5000, 10000]
@@ -39,6 +40,33 @@ def cal_robustness(args):
                                                 transform=torchvision.transforms.Compose([
                                                 torchvision.transforms.ToTensor()]),
                                                 download=True)
+    elif args.dataset == "MNIST":
+        train_dataset = torchvision.datasets.MNIST(root="mnist_train", train=True, 
+                                        transform=transforms.Compose([
+                                        transforms.RandomHorizontalFlip(),
+                                        transforms.ToTensor(),
+                                        ]),
+                                        download=True)
+        val_dataset = torchvision.datasets.MNIST(root="mnist_val",
+                                    train=False,
+                                    transform=transforms.Compose([
+                                        transforms.ToTensor(),
+                                    ]),
+                                    download=True)
+    elif args.ataset == "Fashion_MNIST":
+        train_dataset = torchvision.datasets.FashionMNIST(root="fashion_mnist_train", train=True, 
+                                        transform=transforms.Compose([
+                                        transforms.RandomHorizontalFlip(),
+                                        transforms.ToTensor(),
+                                        ]),
+                                        download=True)
+        val_dataset = torchvision.datasets.FashionMNIST(root="fashion_mnist_val",
+                                    train=False,
+                                    transform=transforms.Compose([
+                                        transforms.ToTensor(),
+                                    ]),
+                                    download=True)
+
     else:
         raise NotImplementedError()
 
