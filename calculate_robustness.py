@@ -14,7 +14,7 @@ def cal_robustness(args):
         config = MODEL_CONFIG[args.model]
         config["norm_layer"] = torch.nn.BatchNorm2d
         model = MODEL_MAP[args.model](**config)
-    if args.model in ["mlp_1d"]:
+    if args.model in ["mlp_1d"] and args.model_type == 2:
         config = MODEL_CONFIG[args.model]
         config["norm_layer"] = torch.nn.BatchNorm1d
         model = MODEL_MAP[args.model](**config)
