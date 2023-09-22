@@ -10,11 +10,11 @@ import argparse
 num_clusters =  [100, 1000, 5000, 10000]
 
 def cal_robustness(args):
-    if args.model in ["resnet", "resnet34", "resnet50"]:
+    if args.model in ["resnet", "resnet34", "resnet50","resnet_1d","resnet34_1d","resnet50_1d"]:
         config = MODEL_CONFIG[args.model]
         config["norm_layer"] = torch.nn.BatchNorm2d
         model = MODEL_MAP[args.model](**config)
-    if args.model in ["mlp_1d","resnet_1d","resnet34_1d","resnet50_1d"]:
+    if args.model in ["mlp_1d"]:
         config = MODEL_CONFIG[args.model]
         config["norm_layer"] = torch.nn.BatchNorm1d
         model = MODEL_MAP[args.model](**config)
