@@ -1,6 +1,8 @@
 from model._resnet import BasicBlock, _resnet, Bottleneck
 from model._vgg import _vgg
 from model._mlp import _mlp
+from model._mlp_1d import _mlp_1d
+from model._resnet_1d import _resnet_1d
 from model._convnext import _convnext, CNBlockConfig
 
 #############################################
@@ -62,6 +64,24 @@ MODEL_CONFIG = {
         "norm_layer": None,
         "num_classes": 10,
     },
+    "resnet_1d": {
+        "block": BasicBlock,
+        "layers": [2, 2, 2, 2],
+        "norm_layer": None,
+        "num_classes": 10
+    },
+    "resnet34_1d": {
+        "block": BasicBlock,
+        "layers": [3, 4, 6, 3],
+        "norm_layer": None,
+        "num_classes": 10
+    },
+    "resnet50_1d": {
+        "block": Bottleneck,
+        "layers": [3, 4, 6, 3],
+        "norm_layer": None,
+        "num_classes": 10,
+    },
     "vgg": {
         "cfg": "D",
         "norm_layer": None,
@@ -70,6 +90,12 @@ MODEL_CONFIG = {
     },
     "mlp": {
         "in_features": 3 * 32 * 32,
+        "cfg": [1024, 512, 256, 64],
+        "norm_layer": None,
+        "num_classes": 10
+    },
+    "mlp_1d":{
+        "in_features": 1 * 28 * 28,
         "cfg": [1024, 512, 256, 64],
         "norm_layer": None,
         "num_classes": 10
@@ -90,7 +116,11 @@ MODEL_MAP = {
     "resnet": _resnet,
     "resnet34": _resnet,
     "resnet50": _resnet,
+    "resnet_1d": _resnet_1d,
+    "resnet34_1d":_resnet_1d,
+    "resnet50_1d":_resnet_1d,
     "mlp": _mlp,
     "vgg": _vgg,
-    "convnext": _convnext
+    "convnext": _convnext,
+    "mlp_1d": _mlp_1d
 }
