@@ -14,7 +14,11 @@ def cal_robustness(args):
         config = MODEL_CONFIG[args.model]
         config["norm_layer"] = torch.nn.BatchNorm2d
         model = MODEL_MAP[args.model](**config)
-    else:
+    if args.model in ["mlp_1d"]:
+        config = MODEL_CONFIG[args.model]
+        config["norm_layer"] = torch.nn.BatchNorm1d
+        model = MODEL_MAP[args.model](**config)
+    else
         model = MODEL_MAP[args.model](**MODEL_CONFIG[args.model])
     model_checkpoint = torch.load(args.model_checkpoint, map_location="cpu")
     # Print model's state_dict
