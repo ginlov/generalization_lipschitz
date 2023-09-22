@@ -14,16 +14,13 @@ def cal_robustness(args):
         config = MODEL_CONFIG[args.model]
         config["norm_layer"] = torch.nn.BatchNorm2d
         model = MODEL_MAP[args.model](**config)
-    if args.model in ["mlp_1d"]:
+    if args.model in ["mlp_1d","resnet_1d","resnet34_1d","resnet50_1d"]:
         config = MODEL_CONFIG[args.model]
         config["norm_layer"] = torch.nn.BatchNorm1d
         model = MODEL_MAP[args.model](**config)
     else:
         model = MODEL_MAP[args.model](**MODEL_CONFIG[args.model])
     model_checkpoint = torch.load(args.model_checkpoint, map_location="cpu")
-    # Print model's state_dict
-    print("Model's state_dict:")
-    print(model_checkpoint["state_dict"])
     model.load_state_dict(model_checkpoint["state_dict"])
 
     if args.dataset == "CIFAR10":
