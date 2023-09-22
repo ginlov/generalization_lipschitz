@@ -19,10 +19,7 @@ def cal_robustness(args):
     model_checkpoint = torch.load(args.model_checkpoint, map_location="cpu")
     # Print model's state_dict
     print("Model's state_dict:")
-    for param_tensor in model_checkpoint.state_dict():
-        print(param_tensor, "\t", model_checkpoint.state_dict()[param_tensor].size())
-
-    print()    
+    print(model_checkpoint["state_dict"])
     model.load_state_dict(model_checkpoint["state_dict"])
 
     if args.dataset == "CIFAR10":
