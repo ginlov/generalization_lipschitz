@@ -18,6 +18,12 @@ def start_train(
                 config["norm_layer"] = nn.BatchNorm1d
             if args.model == "mlp_1d":
                 config["norm_layer"] = nn.BatchNorm1d
+            if args.model = "resnet_1d":
+                config["norm_layer"] = nn.BatchNorm1d
+            if args.model == "resnet34_1d":
+                config["norm_layer"] = nn.BatchNorm1d
+            if args.model == "resnet50_1d":
+                config["norm_layer"] = nn.BatchNorm1d
             else:
                 config["norm_layer"] = nn.BatchNorm2d
         elif args.norm_type == "GN":
