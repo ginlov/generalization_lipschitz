@@ -57,7 +57,7 @@ def cal_robustness(args):
                                         transforms.ToTensor(),
                                     ]),
                                     download=True)
-    elif args.ataset == "Fashion_MNIST":
+    elif args.dataset == "Fashion_MNIST":
         train_dataset = torchvision.datasets.FashionMNIST(root="fashion_mnist_train", train=True, 
                                         transform=transforms.Compose([
                                         transforms.RandomHorizontalFlip(),
