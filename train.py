@@ -16,6 +16,8 @@ def start_train(
         if args.norm_type == "BN":
             if args.model == "mlp":
                 config["norm_layer"] = nn.BatchNorm1d
+            if args.model == "mlp_1d":
+                config["norm_layer"] = nn.BatchNorm1d
             else:
                 config["norm_layer"] = nn.BatchNorm2d
         elif args.norm_type == "GN":
