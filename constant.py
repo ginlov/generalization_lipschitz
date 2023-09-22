@@ -100,7 +100,7 @@ MODEL_CONFIG = {
     "mlp_1d":{
         "in_features": 1 * 28 * 28,
         "cfg": [1024, 512, 256, 64],
-        "norm_layer": "torch.nn.BatchNorm1d",
+        "norm_layer": None,
         "num_classes": 10
     },
     "convnext": {
