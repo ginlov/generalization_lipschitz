@@ -1,39 +1,16 @@
-from train_base import train
-from torch import nn
-from constant import MODEL_CONFIG, MODEL_MAP
-from utils import default_config, add_dict_to_argparser
+from utils.train_base import train
+from utils.constant import MODEL_CONFIG, MODEL_MAP
+from utils.utils import default_config, add_dict_to_argparser, create_model_from_config
 
 import argparse
 
 
 def start_train(
         args: argparse.Namespace,
-        debug: bool = False
     ):
     # create model
-    config = MODEL_CONFIG[args.model]
-    if args.model_type == 2:
-        if args.norm_type == "BN":
-            if args.model == "mlp":
-                config["norm_layer"] = nn.BatchNorm1d
-            if args.model == "mlp_1d":
-                config["norm_layer"] = nn.BatchNorm1d
-            else:
-                config["norm_layer"] = nn.BatchNorm2d
-        
-        elif args.norm_type == "GN":
-            config["norm_layer"] = nn.GroupNorm
-        elif args.norm_type == "LN":
-            config["norm_layer"] = nn.LayerNorm
-        else:
-            raise NotImplementedError("This norm type has not been implemented yet.")
-    elif args.model_type == 1 and args.model in ["resnet", "resnet34", "resnet50"]:
-        config["signal"] = 1
-    elif args.model_type == 1:
-        raise NotImplementedError("This setting is not support for vgg and mlp")
-    
+    model = create_model_from_config(args)
     dataset = args.dataset
-    model = MODEL_MAP[args.model](**config)
 
     # training
     if args.model_type == 0:
@@ -51,9 +28,6 @@ def start_train(
         "log_folder": log_folder
     }
 
-    if debug:
-        return config, training_config
-
     train(**training_config)
 
 
@@ -63,4 +37,4 @@ if __name__ == "__main__":
     
     args = parser.parse_args()
 
-    start_train(args, False)
+    start_train(args)

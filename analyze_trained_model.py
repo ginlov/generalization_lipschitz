@@ -3,9 +3,9 @@ import torch
 import numpy as np
 import argparse
 
-from constant import SELECTED_LAYERS, VISUALIZE_LAYERS
+from utils.constant import SELECTED_LAYERS, VISUALIZE_LAYERS
 from matplotlib import pyplot as plt
-from utils import default_config, add_dict_to_argparser
+from utils.utils import default_config, add_dict_to_argparser
 
 
 def analyze(norm_type, model):

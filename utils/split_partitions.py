@@ -1,7 +1,8 @@
-from torch.utils.data import Dataset
-import random
+from torch.utils import data
 from torch import Tensor
+
 import torch
+import random
 
 def select_partition_centroid(
     num_partitions: int,
@@ -15,31 +16,31 @@ def select_partition_centroid(
     return torch.vstack(centroids)
 
 def assign_partition(
-    test_dataset: Dataset,
+    test_dataset: data.Dataset,
     centroids: Tensor
     ):
-    val_loader = torch.utils.data.DataLoader(
+    data_loader = data.DataLoader(
         test_dataset, 
         batch_size=len(test_dataset), 
         shuffle=False)
-    for batch in val_loader:
-        data = batch[0]
+    for batch in data_loader:
+        features_data = batch[0]
 
-    batch, _, __, ___ = data.shape
-    distance = torch.cdist(data.reshape(batch, -1), centroids, p=2)
+    batch, _, __, ___ = features_data.shape
+    distance = torch.cdist(features_data.reshape(batch, -1), centroids, p=2)
     cluster_indices = torch.argmin(distance, dim=1)
     return cluster_indices
 
 def calculate_robustness(
     model: torch.nn.Module,
-    train_dataset: torch.utils.data.Dataset,
-    test_dataset: torch.utils.data.Dataset,
+    train_dataset: data.Dataset,
+    test_dataset: data.Dataset,
     train_indices: torch.Tensor,
     test_indices: torch.Tensor,
     loss_func,
     ):
-    train_dataloader = torch.utils.data.DataLoader(train_dataset, batch_size=128, shuffle=False)
-    dataloader = torch.utils.data.DataLoader(test_dataset, batch_size=128, shuffle=False)
+    train_dataloader = data.DataLoader(train_dataset, batch_size=128, shuffle=False)
+    dataloader = data.DataLoader(test_dataset, batch_size=128, shuffle=False)
     loss = []
     train_loss = []
     model.eval()

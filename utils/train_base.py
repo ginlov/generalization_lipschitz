@@ -3,12 +3,15 @@ from torchvision import datasets, transforms
 from enum import Enum
 from torch import nn
 from loguru import logger
+from torch.utils import data
 
 import torch
 import time
 import shutil
 import numpy as np
 import os
+
+from utils.utils import load_dataset
 
 
 def train(model, dataset, log_file_name="", log_folder="log", clamp_value=-1, from_checkpoint=False):
@@ -30,69 +33,13 @@ def train(model, dataset, log_file_name="", log_folder="log", clamp_value=-1, fr
     logger.info("Loading data")
     print(from_checkpoint)
     logger.info(from_checkpoint)
-    def transform(img: torch.Tensor):
-        return img * 2 - 1.0 
-    if dataset == "CIFAR10":
-        train_dataset = datasets.CIFAR10(root="cifar_train", train=True, 
-                                        transform=transforms.Compose([
-                                        transforms.RandomHorizontalFlip(),
-                                        transforms.ToTensor()                                        ]),
-                                        download=True)
-        val_dataset = datasets.CIFAR10(root="cifar_val",
-                                    train=False,
-                                    transform=transforms.Compose([
-                                        transforms.ToTensor(),
-                                    ]),
-                                    download=True)
-    elif dataset == "MNIST":
-        train_dataset = datasets.MNIST(root="mnist_train", train=True, 
-                                        transform=transforms.Compose([
-                                        transforms.RandomHorizontalFlip(),
-                                        transforms.ToTensor(),
-                                        transform,
-                                        ]),
-                                        download=True)
-        val_dataset = datasets.MNIST(root="mnist_val",
-                                    train=False,
-                                    transform=transforms.Compose([
-                                        transforms.ToTensor(),
-                                        transform
-                                    ]),
-                                    download=True)
-    elif dataset == "SVHN":
-        train_dataset = datasets.SVHN(root="svhn_train", split = 'train', 
-                                        transform=transforms.Compose([
-                                        transforms.RandomHorizontalFlip(),
-                                        transforms.ToTensor(),
-                                        ]),
-                                        download=True)
-        val_dataset = datasets.SVHN(root="svhn_val",
-                                    split = "test",
-                                    transform=transforms.Compose([
-                                        transforms.ToTensor(),
-                                    ]),
-                                    download=True)
-    elif dataset == "Fashion_MNIST":
-        train_dataset = datasets.FashionMNIST(root="fashion_mnist_train", train=True, 
-                                        transform=transforms.Compose([
-                                        transforms.RandomHorizontalFlip(),
-                                        transforms.ToTensor(),
-                                        transform,
-                                        ]),
-                                        download=True)
-        val_dataset = datasets.FashionMNIST(root="fashion_mnist_val",
-                                    train=False,
-                                    transform=transforms.Compose([
-                                        transforms.ToTensor(),
-                                        transform
-                                    ]),
-                                    download=True)
 
-    train_loader = torch.utils.data.DataLoader(
+    train_dataset, val_dataset = load_dataset(dataset)
+    train_loader = data.DataLoader(
         train_dataset, batch_size=batch_size, shuffle=True,
         num_workers=workers, pin_memory=True)
 
-    val_loader = torch.utils.data.DataLoader(
+    val_loader = data.DataLoader(
         val_dataset, batch_size=batch_size, shuffle=False,
         num_workers=workers, pin_memory=True)
     ###################################

@@ -1,52 +1,23 @@
-from utils import default_config, add_dict_to_argparser
-from constant import MODEL_CONFIG, MODEL_MAP
-from robustness.split_partitions import *
+from utils.utils import default_config, add_dict_to_argparser, create_model_from_config, load_dataset
+from utils.split_partitions import *
+from torch.utils import data
 
 import torch
-import torchvision
 import argparse
+import numpy as np
 
 num_clusters =  [100, 1000, 5000, 10000]
 
 def cal_robustness(args):
-    if args.model in ["resnet", "resnet34", "resnet50"]:
-        config = MODEL_CONFIG[args.model]
-        config["norm_layer"] = torch.nn.BatchNorm2d
-        model = MODEL_MAP[args.model](**config)
-    else:
-        model = MODEL_MAP[args.model](**MODEL_CONFIG[args.model])
+    model = create_model_from_config(args)
     model_checkpoint = torch.load(args.model_checkpoint, map_location="cpu")
     model.load_state_dict(model_checkpoint["state_dict"])
 
-    if args.dataset == "CIFAR10":
-        train_dataset = torchvision.datasets.CIFAR10(root="cifar_train", train=True, transform=torchvision.transforms.Compose([
-            torchvision.transforms.RandomHorizontalFlip(),
-            torchvision.transforms.ToTensor()
-        ]),
-                                                   download=True)
-        val_dataset = torchvision.datasets.CIFAR10(root="cifar_val", train=False, transform=torchvision.transforms.Compose([
-            torchvision.transforms.ToTensor()
-        ]),
-                                                   download=True)
-    elif args.dataset == "SVHN":
-        train_dataset = torchvision.datasets.SVHN(root='svhn_train', split='train',
-                                            transform=torchvision.transforms.Compose([
-                                            torchvision.transforms.RandomHorizontalFlip(),
-                                            torchvision.transforms.ToTensor(),
-                                            ]),
-                                            download=True)
-        val_dataset = torchvision.datasets.SVHN(root="svhn_val", split='test', 
-                                                transform=torchvision.transforms.Compose([
-                                                torchvision.transforms.ToTensor()]),
-                                                download=True)
-    else:
-        raise NotImplementedError()
-
+    train_dataset, val_dataset = load_dataset(args.dataset)
+    train_dataloader = data.DataLoader(train_dataset, batch_size=128, shuffle=False)
+    val_dataloader = data.DataLoader(val_dataset, batch_size=128, shuffle=False)
 
     loss_func = torch.nn.CrossEntropyLoss(reduction='none')
-
-    train_dataloader = torch.utils.data.DataLoader(train_dataset, batch_size=128, shuffle=False)
-    val_dataloader = torch.utils.data.DataLoader(val_dataset, batch_size=128, shuffle=False)
 
     loss = []
     train_loss = []
@@ -54,6 +25,8 @@ def cal_robustness(args):
     model.to(device)
     loss_func.to(device)
     model.eval()
+
+    ## Feed dataset through nn
     with torch.no_grad():
         for batch in val_dataloader:
             output = model(batch[0].to(device))
@@ -63,27 +36,52 @@ def cal_robustness(args):
             train_loss.append(torch.Tensor(loss_func(output, batch[1].to(device))).detach().cpu())
     loss = torch.concatenate(loss)
     train_loss = torch.concatenate(train_loss)
+
     epsilon_list = []
+    epsilon_bound_2_list = []
+    epsilon_bound_3_list = []
 
     for num_cluster in num_clusters:
-        local_epsilon = []
-        for k in range(10):
+        temp_epsilon_list = []
+        temp_epsilon_bound_2_list = []
+        temp_epsilon_bound_3_list = []
+
+        for _ in range(10):
             centroids = select_partition_centroid(num_cluster, train_dataset)
             train_indices = assign_partition(train_dataset, centroids)
             test_indices = assign_partition(val_dataset, centroids)
             max_index = torch.max(test_indices)
+            train_cluster_shape = []
+            cluster_epsilon_list = []
+            bound_3_list = []
             epsilon = 0.0
+
             for i in range(max_index + 1):
                 train_loss_values = train_loss[(train_indices==i).nonzero()]
                 loss_values = loss[(test_indices==i).nonzero()]
             
                 if loss_values.shape[0] < 1 or train_loss_values.shape[0] < 1:
                     continue
+                train_cluster_shape.append(train_indices.shape[0])
                 loss_subtraction = torch.abs(torch.cdist(loss_values, train_loss_values, p=1))
-                epsilon = max(epsilon, torch.max(loss_subtraction.reshape(-1)).item())
-            local_epsilon.append(epsilon)
-        epsilon_list.append(f"{torch.mean(torch.Tensor(local_epsilon)).item()}+-{torch.var(torch.Tensor(local_epsilon)).item()}")
-    print(epsilon_list)
+                cluster_epsilon = torch.max(loss_subtraction.reshape(-1)).item()
+                cluster_epsilon_list.append(cluster_epsilon)
+                epsilon = max(epsilon, cluster_epsilon)
+                bound_3 = max(torch.max(train_loss_values).item(), torch.max(loss_values).item()) - torch.mean(train_loss_values).item()
+                bound_3_list.append(bound_3)
+
+            epsilon_bound_2 = np.sum(np.array(train_cluster_shape) * np.array(cluster_epsilon_list)) / np.sum(train_cluster_shape)
+            epsilon_bound_3 = np.sum(np.array(train_cluster_shape) * np.array(bound_3_list)) / np.sum(train_cluster_shape)
+            temp_epsilon_bound_2_list.append(epsilon_bound_2)
+            temp_epsilon_bound_3_list.append(epsilon_bound_3)
+            temp_epsilon_list.append(epsilon)
+
+        epsilon_list.append(f"{torch.mean(torch.Tensor(temp_epsilon_list)).item()}+-{torch.var(torch.Tensor(temp_epsilon_list)).item()}")
+        epsilon_bound_2_list.append(f"{torch.mean(torch.Tensor(temp_epsilon_bound_2_list)).item()}+-{torch.var(torch.Tensor(temp_epsilon_bound_2_list)).item()}")
+        epsilon_bound_3_list.append(f"{torch.mean(torch.Tensor(temp_epsilon_bound_3_list)).item()}+-{torch.var(torch.Tensor(temp_epsilon_bound_3_list)).item()}")
+    print(f"epsilon {epsilon_list}")
+    print(f"epsilon bound 2 {epsilon_bound_2_list}")
+    print(f"epsilon bound 3 {epsilon_bound_3_list}")
  
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
