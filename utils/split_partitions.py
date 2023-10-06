@@ -6,7 +6,7 @@ import random
 
 def select_partition_centroid(
     num_partitions: int,
-    train_dataset: Dataset
+    train_dataset: data.Dataset
     ):
     index_choices = random.choices(range(len(train_dataset)), 
                                    k=num_partitions)
