@@ -1,4 +1,4 @@
-from utils.utils import default_config, add_dict_to_argparser, create_model_from_config, load_dataset
+from utils.utils import default_config, add_dict_to_argparser, create_model_from_config, load_dataset, loss_l1
 from utils.split_partitions import *
 from torch.utils import data
 
@@ -17,13 +17,14 @@ def cal_robustness(args):
     train_dataloader = data.DataLoader(train_dataset, batch_size=128, shuffle=False)
     val_dataloader = data.DataLoader(val_dataset, batch_size=128, shuffle=False)
 
-    loss_func = torch.nn.CrossEntropyLoss(reduction='none')
+    # loss_func = torch.nn.CrossEntropyLoss(reduction='none')
+    loss_func = loss_l1
 
     loss = []
     train_loss = []
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
     model.to(device)
-    loss_func.to(device)
+    # loss_func.to(device)
     model.eval()
 
     ## Feed dataset through nn

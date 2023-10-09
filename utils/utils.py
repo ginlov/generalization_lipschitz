@@ -4,6 +4,7 @@ from utils.constant import MODEL_CONFIG, MODEL_MAP
 from torchvision import transforms, datasets
 
 import argparse
+import torch
 
 def default_config():
     return {
@@ -105,3 +106,8 @@ def load_dataset(
                                     ]),
                                     download=True)
     return train_dataset, val_dataset
+
+def loss_l1(y_pred, y_true):
+    label_pred = torch.argmax(y_pred, dim=1)
+    loss = (label_pred == y_true).int()
+    return loss
