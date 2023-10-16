@@ -1,5 +1,6 @@
 from torch.utils import data
 from torch import Tensor
+from typing import List
 
 import torch
 import random
@@ -82,8 +83,8 @@ def calculate_robustness(
 
 def generate_dataset(
     num_sample: int = 10000,
-    num_features: int = 32 * 32 * 3,
+    num_features: List[int] = [3, 32, 32],
     ):
-    X = np.random.uniform(0.0, 1.0, [num_sample, num_features])
+    X = np.random.uniform(0.0, 1.0, [num_sample] + num_features)
     y = np.random.uniform(0.0, 1.0, [num_sample])
     return PseudoDataset(X, y)
