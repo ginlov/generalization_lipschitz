@@ -34,13 +34,14 @@ def cal_lipschitz(args):
         for _ in range(10):
             centroids = select_partition_centroid(num_cluster, train_dataset)
             indices = assign_partition(pseudo_dataset, centroids)
-            print(indices)
             max_index = torch.max(indices)
             cluster_shape = []
             cluster_lipschitz_list = []
 
             for i in range(max_index + 1):
+                print(pseudo_dataset.X)
                 model_input_values = pseudo_dataset.X[(indices==i).nonzero()]
+                print(model_output)
                 model_output_values = model_output[(indices==i).nonzero()]
 
                 if model_output_values.shape[0] < 1:
