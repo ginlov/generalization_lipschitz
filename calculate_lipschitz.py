@@ -13,7 +13,7 @@ def cal_lipschitz(args):
     model_checkpoint = torch.load(args.model_checkpoint, map_location="cpu")
     model.load_state_dict(model_checkpoint["state_dict"])
 
-    train_dataset, valid_dataset = load_dataset(args.dataset)
+    train_dataset, _ = load_dataset(args.dataset)
 
     pseudo_dataset = generate_dataset()
     dataloader = data.DataLoader(pseudo_dataset, batch_size=128, shuffle=False)
@@ -34,6 +34,7 @@ def cal_lipschitz(args):
         for _ in range(10):
             centroids = select_partition_centroid(num_cluster, train_dataset)
             indices = assign_partition(pseudo_dataset, centroids)
+            print(indices)
             max_index = torch.max(indices)
             cluster_shape = []
             cluster_lipschitz_list = []
