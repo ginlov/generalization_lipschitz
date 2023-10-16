@@ -13,8 +13,8 @@ class PseudoDataset(data.IterableDataset):
                 y
         ):
         super(PseudoDataset).__init__()
-        self.X = X
-        self.y = y
+        self.X = torch.tensor(X, dtype=torch.float)
+        self.y = torch.tensor(y, dtype=torch.float)
 
     def __iter__(self):
         return iter(zip(self.X, self.y))
