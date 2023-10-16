@@ -3,6 +3,20 @@ from torch import Tensor
 
 import torch
 import random
+import numpy as np
+
+class PseudoDataset(data.IterableDataset):
+    def __init__(
+                self,
+                X,
+                y
+        ):
+        super(PseudoDataset).__init__()
+        self.X = X
+        self.y = y
+
+    def __iter__(self):
+        return iter(zip(self.X, self.y))
 
 def select_partition_centroid(
     num_partitions: int,
@@ -65,3 +79,11 @@ def calculate_robustness(
         epsilon = max(epsilon, torch.max(loss_subtraction.reshape(-1)).item())
 
     return epsilon
+
+def generate_dataset(
+    num_sample: int = 10000,
+    num_features: int = 32 * 32 * 3,
+    ):
+    X = np.random.uniform(0.0, 1.0, [num_sample, num_features])
+    y = np.random.uniform(0.0, 1.0, [num_sample])
+    return PseudoDataset(X, y)
