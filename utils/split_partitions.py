@@ -6,7 +6,7 @@ import torch
 import random
 import numpy as np
 
-class PseudoDataset(data.IterableDataset):
+class PseudoDataset(data.Dataset):
     def __init__(
                 self,
                 X,
@@ -16,8 +16,11 @@ class PseudoDataset(data.IterableDataset):
         self.X = torch.tensor(X, dtype=torch.float)
         self.y = torch.tensor(y, dtype=torch.float)
 
-    def __iter__(self):
-        return iter(zip(self.X, self.y))
+    def __len__(self):
+        return self.X.shape[0]
+
+    def __getitem__(self, index):
+        return self.X[index], self.y[index]
 
 def select_partition_centroid(
     num_partitions: int,
