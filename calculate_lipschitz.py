@@ -43,8 +43,9 @@ def cal_lipschitz(args):
             for i in range(max_index + 1):
                 model_input_values = pseudo_dataset.X[(indices==i).nonzero()]
                 model_output_values = model_output[(indices==i).nonzero()]
-                print(model_input_values.shape)
-                print(model_output_values.shape)
+                number_items = model_input_values.shape[0]
+                model_input_values = model_input_values.reshape(number_items, -1)
+                model_output_values = model_output_values.reshape(number_items, -1)
 
                 if model_output_values.shape[0] < 1:
                     continue
