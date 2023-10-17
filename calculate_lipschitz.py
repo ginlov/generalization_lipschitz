@@ -56,7 +56,9 @@ def cal_lipschitz(args):
                 cluster_lipschitz = torch.max((model_output_subtraction/model_input_subtraction).reshape(-1)).item()
                 cluster_lipschitz_list.append(cluster_lipschitz)
 
+            print(f"cluster_shape {cluster_shape}, cluster lips {cluster_lipschitz_list}")
             bound_5 = np.sum(np.array(cluster_shape) * np.array(cluster_lipschitz_list)) / np.sum(np.array(cluster_shape))
+            print(f"bound 5 {bound_5}")
 
             bound_5_list.append(bound_5)
             print(f"Num cluster {num_cluster}, values {torch.mean(torch.Tensor(bound_5_list)).item()}+-{torch.var(torch.Tensor(bound_5_list)).item()}")
