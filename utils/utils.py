@@ -109,5 +109,5 @@ def load_dataset(
 
 def loss_l1(y_pred, y_true):
     label_pred = torch.argmax(y_pred, dim=1)
-    loss = (label_pred != y_true).int().float()
+    loss = (label_pred != y_true).int().float() * 2
     return loss
