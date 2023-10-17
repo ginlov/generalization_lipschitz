@@ -61,7 +61,7 @@ def cal_lipschitz(args):
             print(f"bound 5 {bound_5}")
 
             bound_5_list.append(bound_5)
-            print(f"Num cluster {num_cluster}, values {torch.mean(torch.Tensor(bound_5_list)).item()}+-{torch.var(torch.Tensor(bound_5_list)).item()}")
+        print(f"Num cluster {num_cluster}, values {torch.mean(torch.Tensor(bound_5_list)).item()}+-{torch.var(torch.Tensor(bound_5_list)).item()}")
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
