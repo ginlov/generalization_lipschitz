@@ -44,12 +44,13 @@ def cal_lipschitz(args):
                 model_input_values = pseudo_dataset.X[(indices==i).nonzero()]
                 model_output_values = model_output[(indices==i).nonzero()]
                 number_items = model_input_values.shape[0]
+
+                if number_items < 1:
+                    continue
+
                 model_input_values = model_input_values.reshape(number_items, -1)
                 model_output_values = model_output_values.reshape(number_items, -1)
-
-                if model_output_values.shape[0] < 1:
-                    continue
-                cluster_shape.append(indices.shape[0])
+                cluster_shape.append(number_items)
                 model_output_subtraction = torch.abs(torch.cdist(model_output_values, model_output_values, p=1))
                 model_input_subtraction = torch.abs(torch.cdist(model_input_values, model_input_values, p=1))
                 cluster_lipschitz = torch.max((model_output_subtraction/model_input_subtraction).reshape(-1)).item()
