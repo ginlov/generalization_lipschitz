@@ -45,7 +45,7 @@ def cal_lipschitz(args):
                 model_output_values = model_output[(indices==i).nonzero()]
                 number_items = model_input_values.shape[0]
 
-                if number_items < 1:
+                if number_items < 2:
                     continue
 
                 model_input_values = model_input_values.reshape(number_items, -1)
