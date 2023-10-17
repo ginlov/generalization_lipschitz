@@ -1,4 +1,4 @@
-from utils.utils import default_config, add_dict_to_argparser, create_model_from_config, load_dataset, loss_l1
+from utils.utils import default_config, add_dict_to_argparser, create_model_from_config, load_dataset
 from utils.split_partitions import *
 from torch.utils import data
 
@@ -43,6 +43,8 @@ def cal_lipschitz(args):
             for i in range(max_index + 1):
                 model_input_values = pseudo_dataset.X[(indices==i).nonzero()]
                 model_output_values = model_output[(indices==i).nonzero()]
+                print(model_input_values.shape)
+                print(model_output_values.shape)
 
                 if model_output_values.shape[0] < 1:
                     continue
