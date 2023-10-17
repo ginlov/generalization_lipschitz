@@ -28,6 +28,8 @@ def cal_lipschitz(args):
             output = model(batch[0].to(device))
             model_output.append(output.detach().cpu())
 
+    model_output = torch.concatenate(model_output)
+
     for num_cluster in num_clusters:
         bound_5_list = []
 
@@ -39,9 +41,7 @@ def cal_lipschitz(args):
             cluster_lipschitz_list = []
 
             for i in range(max_index + 1):
-                print(pseudo_dataset.X)
                 model_input_values = pseudo_dataset.X[(indices==i).nonzero()]
-                print(model_output)
                 model_output_values = model_output[(indices==i).nonzero()]
 
                 if model_output_values.shape[0] < 1:
