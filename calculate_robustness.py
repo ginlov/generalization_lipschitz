@@ -77,9 +77,9 @@ def cal_robustness(args):
             temp_epsilon_bound_3_list.append(epsilon_bound_3)
             temp_epsilon_list.append(epsilon)
 
-        epsilon_list.append(f"{torch.mean(torch.Tensor(temp_epsilon_list)).item():.2f}+-{torch.var(torch.Tensor(temp_epsilon_list)).item():.2f}")
-        epsilon_bound_2_list.append(f"{torch.mean(torch.Tensor(temp_epsilon_bound_2_list)).item():.2f}+-{torch.var(torch.Tensor(temp_epsilon_bound_2_list)).item():.2f}")
-        epsilon_bound_3_list.append(f"{torch.mean(torch.Tensor(temp_epsilon_bound_3_list)).item():.2f}+-{torch.var(torch.Tensor(temp_epsilon_bound_3_list)).item():.2f}")
+        epsilon_list.append(f"{torch.mean(torch.Tensor(temp_epsilon_list)).item()}+-{torch.var(torch.Tensor(temp_epsilon_list)).item()}")
+        epsilon_bound_2_list.append(f"{torch.mean(torch.Tensor(temp_epsilon_bound_2_list)).item()}+-{torch.var(torch.Tensor(temp_epsilon_bound_2_list)).item()}")
+        epsilon_bound_3_list.append(f"{torch.mean(torch.Tensor(temp_epsilon_bound_3_list)).item()}+-{torch.var(torch.Tensor(temp_epsilon_bound_3_list)).item()}")
     print(f"epsilon {epsilon_list}")
     print(f"epsilon bound 2 {epsilon_bound_2_list}")
     print(f"epsilon bound 3 {epsilon_bound_3_list}")

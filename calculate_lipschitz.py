@@ -60,7 +60,7 @@ def cal_lipschitz(args):
 
             bound_5 = np.sum(np.array(cluster_shape) * np.array(cluster_lipschitz_list)) / np.sum(np.array(cluster_shape))
             bound_5_list.append(bound_5)
-        print(f"Num cluster {num_cluster}, values {torch.mean(torch.Tensor(bound_5_list)).item():.2f}+-{torch.var(torch.Tensor(bound_5_list)).item():.2f}")
+        print(f"Num cluster {num_cluster}, values {torch.mean(torch.Tensor(bound_5_list)).item()}+-{torch.var(torch.Tensor(bound_5_list)).item()}")
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
