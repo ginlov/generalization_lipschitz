@@ -13,7 +13,7 @@ def cal_lipschitz(args):
     model_checkpoint = torch.load(args.model_checkpoint, map_location="cpu")
     model.load_state_dict(model_checkpoint["state_dict"])
 
-    train_dataset, _ = load_dataset(args.dataset)
+    _, valid_dataset = load_dataset(args.dataset)
 
     pseudo_dataset = generate_dataset()
     dataloader = data.DataLoader(pseudo_dataset, batch_size=128, shuffle=False)
@@ -36,7 +36,7 @@ def cal_lipschitz(args):
         bound_5_list = []
 
         for _ in range(10):
-            centroids = select_partition_centroid(num_cluster, train_dataset)
+            centroids = select_partition_centroid(num_cluster, valid_dataset)
             indices = assign_partition(pseudo_dataset, centroids)
             max_index = torch.max(indices)
             cluster_shape = []
@@ -60,7 +60,7 @@ def cal_lipschitz(args):
 
             bound_5 = np.sum(np.array(cluster_shape) * np.array(cluster_lipschitz_list)) / np.sum(np.array(cluster_shape))
             bound_5_list.append(bound_5)
-        print(f"Num cluster {num_cluster}, values {torch.mean(torch.Tensor(bound_5_list)).item()}+-{torch.var(torch.Tensor(bound_5_list)).item()}")
+        print(f"Num cluster {num_cluster}, values {torch.mean(torch.Tensor(bound_5_list)).item():.2f}+-{torch.var(torch.Tensor(bound_5_list)).item():.2f}")
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
