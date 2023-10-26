@@ -26,6 +26,8 @@ def select_partition_centroid(
     num_partitions: int,
     train_dataset: data.Dataset
     ):
+    if len(train_dataset) == num_partitions
+        index_choices = list(range(num_partitions))
     index_choices = random.sample(range(len(train_dataset)), 
                                    k=num_partitions)
     centroids = []
