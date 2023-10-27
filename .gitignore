@@ -7,3 +7,5 @@ data/
 *cifar_train*
 *cifar_val*
 .DS_Store
+*svhn_train*
+*svhn_val*
