@@ -4,7 +4,6 @@ from torch.utils import data
 
 import torch
 import argparse
-import numpy as np
 import math
 
 num_clusters = [100, 1000, 5000, 10000]
@@ -40,7 +39,7 @@ def cal_g_function(args):
             centroids = select_partition_centroid(num_cluster, valid_dataset)
             train_indices = assign_partition(train_dataset, centroids)
             TD = torch.unique(train_indices).shape[0]
-            g_value = C * ((math.sqrt(2)+1)*torch.sqrt(TD * math.log(2*num_cluster/sigma)/num_items) + 2*TD*math.log(2*num_cluster/sigma)/num_items)
+            g_value = C * ((math.sqrt(2)+1)*math.sqrt(TD * math.log(2*num_cluster/sigma)/num_items) + 2*TD*math.log(2*num_cluster/sigma)/num_items)
             g_temp_values.append(g_value)
         g_temp_values = torch.concatenate(g_temp_values)
         print(f"Num cluster {num_cluster}, values {torch.mean(train_loss).item() + torch.mean(torch.Tensor(g_temp_values)).item()}+-{torch.var(torch.Tensor(g_temp_values)).item()}")
