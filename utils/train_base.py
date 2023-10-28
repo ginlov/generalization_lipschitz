@@ -1,5 +1,5 @@
 from model._resnet import ModifiedLinear, ModifiedConv2d, ModifiedMaxPool2d, ModifiedAdaptiveAvgPool2d
-from torchvision import datasets, transforms
+from torchvision import datasets
 from enum import Enum
 from torch import nn
 from loguru import logger
@@ -20,13 +20,20 @@ def train(model, dataset, log_file_name="", log_folder="log", clamp_value=-1, fr
     ##############################
     global best_acc1
     best_acc1 = 0.0
+    best_acc5 = 0.0
+    best_loss = 0.0
+    train_best_acc1 = 0.0
+    train_best_acc5 = 0.0
+    train_best_loss = 0.0
+    patient = 0
     batch_size = 64
     workers = 5
     lr = 0.01
-    num_epoch = 40
+    num_epoch = 100
     # num_epoch = 1
     weight_decay = 1e-4
     momentum = 0.9
+    max_patient = 8
 
     ###############################
     ### LOADING DATASET ###########
@@ -72,14 +79,28 @@ def train(model, dataset, log_file_name="", log_folder="log", clamp_value=-1, fr
     if not os.path.isdir(f"{log_folder}/mean"):
         os.mkdir(f"{log_folder}/mean")
     for i in range(start_epoch, num_epoch):
-        train_epoch(model, train_loader, optimizer, loss_fn, device, log_file_name, log_folder, i, clamp_value=clamp_value)
+        train_loss, train_acc1, train_acc5 = train_epoch(model, train_loader, optimizer, loss_fn, device, log_file_name, log_folder, i, clamp_value=clamp_value)
 
-        acc1, acc5 = validate_epoch(model, val_loader, loss_fn, device, log_file_name, i)
+        loss, acc1, acc5 = validate_epoch(model, val_loader, loss_fn, device, log_file_name, i)
 
         scheduler.step() 
 
         is_best = acc1 > best_acc1
-        best_acc1 = max(acc1, best_acc1)
+        
+        if is_best is False:
+            patient +=1
+            if patient > max_patient:
+                print("-----OUT OF PATIENCE-----")
+                break
+        else:
+            patient = 0
+            best_acc1 = acc1
+            train_best_acc1 = train_acc1
+            best_loss = loss
+            train_best_loss = train_loss
+            best_acc5 = acc5
+            train_best_acc5 = train_acc5
+
         save_checkpoint(
             {
                 'epoch': i + 1,
@@ -91,6 +112,9 @@ def train(model, dataset, log_file_name="", log_folder="log", clamp_value=-1, fr
             is_best,
             log_folder
         )
+    print("------END OF TRAINING------")
+    print(f"Train data: loss {train_best_loss}, acc1 {train_best_acc1}, acc5 {train_best_acc5}")
+    print(f"Valid data: loss {best_loss}, acc1 {best_acc1}, acc5 {best_acc5}")
 
 
 def train_epoch(model, train_loader, optimizer, loss_fn, device, log_file, log_folder, epoch, clamp_value=-1):
@@ -145,6 +169,7 @@ def train_epoch(model, train_loader, optimizer, loss_fn, device, log_file, log_f
             log_var_mean(model, log_folder, epoch, i)
         elif (i+1) % 100 == 0:
             log_var_mean(model, log_folder, epoch, i)
+    return losses.avg, top1.avg, top5.avg
 
 
 def validate_epoch(model, valid_loader, loss_fn, device, log_file, epoch):
@@ -185,7 +210,7 @@ def validate_epoch(model, valid_loader, loss_fn, device, log_file, epoch):
     run_validate(valid_loader)
     progress.display_summary()
 
-    return top1.avg, top5.avg
+    return losses.avg, top1.avg, top5.avg
 
 
 def save_checkpoint(state, is_best, log_folder, filename='checkpoint.pth.tar'):
@@ -270,7 +295,6 @@ class ProgressMeter(object):
         print(' '.join(entries))
         with open(self.log_file, "a+") as f:
             f.write(" ".join(entries) + "\n")
-
 
     def _get_batch_fmtstr(self, num_batches):
         num_digits = len(str(num_batches // 1))

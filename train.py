@@ -1,5 +1,4 @@
 from utils.train_base import train
-from utils.constant import MODEL_CONFIG, MODEL_MAP
 from utils.utils import default_config, add_dict_to_argparser, create_model_from_config
 
 import argparse
