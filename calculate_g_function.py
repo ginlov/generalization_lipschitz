@@ -7,7 +7,11 @@ import argparse
 import math
 
 num_clusters = [100, 1000, 5000, 10000]
-sigma = [0.01, 0.05, 0.1]
+sigma = {
+    "one": 0.01,
+    "two": 0.05,
+    "three": 0.1
+}
 
 def cal_g_function(args):
     model = create_model_from_config(args)
@@ -35,16 +39,21 @@ def cal_g_function(args):
     print("Train loss by L1 loss: {}".format(torch.mean(train_loss).item()))
 
     for num_cluster in num_clusters:
-        for sigma_value in sigma:
-            g_temp_values = []
-            for _ in range(10):
-                centroids = select_partition_centroid(num_cluster, valid_dataset)
-                train_indices = assign_partition(train_dataset, centroids)
-                TD = torch.unique(train_indices).shape[0]
+        g_temp_values = {
+            "one": [],
+            "two": [],
+            "three": []
+        }
+        for _ in range(10):
+            centroids = select_partition_centroid(num_cluster, valid_dataset)
+            train_indices = assign_partition(train_dataset, centroids)
+            TD = torch.unique(train_indices).shape[0]
+            for key, sigma_value in sigma.items():
                 g_value = C * ((math.sqrt(2)+1)*math.sqrt(TD * math.log(2*num_cluster/sigma_value)/num_items) + 2*TD*math.log(2*num_cluster/sigma_value)/num_items)
-                g_temp_values.append(g_value)
-            g_temp_values = torch.tensor(g_temp_values)
-            print(f"Num cluster {num_cluster} sigma {sigma_value}, values {torch.mean(torch.Tensor(g_temp_values)).item()}+-{torch.var(torch.Tensor(g_temp_values)).item()}")
+                g_temp_values[key].append(g_value)
+        for key in g_temp_values.keys():
+            temp = torch.tensor(g_temp_values[key])
+            print(f"Num cluster {num_cluster} sigma {sigma[key]}, values {torch.mean(torch.Tensor(temp)).item()}+-{torch.var(torch.Tensor(temp)).item()}")
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
