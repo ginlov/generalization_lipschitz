@@ -29,8 +29,8 @@ def train(model, dataset, log_file_name="", log_folder="log", clamp_value=-1, fr
     batch_size = 64
     workers = 5
     lr = 0.01
-    # num_epoch = 100
-    num_epoch = 1
+    num_epoch = 100
+    # num_epoch = 1
     weight_decay = 1e-4
     momentum = 0.9
     max_patient = 8
