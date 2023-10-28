@@ -8,7 +8,7 @@ import numpy as np
 
 num_clusters =  [100, 1000, 5000, 10000]
 
-def cal_robustness(args):
+def cal_local_robustness(args):
     model = create_model_from_config(args)
     model_checkpoint = torch.load(args.model_checkpoint, map_location="cpu")
     model.load_state_dict(model_checkpoint["state_dict"])
@@ -17,11 +17,8 @@ def cal_robustness(args):
     train_dataloader = data.DataLoader(train_dataset, batch_size=128, shuffle=False)
     val_dataloader = data.DataLoader(val_dataset, batch_size=128, shuffle=False)
 
-    # loss_func = torch.nn.CrossEntropyLoss(reduction='none')
-    loss_func = loss_l1
-
-    loss = []
-    train_loss = []
+    val_output = []
+    train_output = []
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
     model.to(device)
     # loss_func.to(device)
@@ -31,12 +28,12 @@ def cal_robustness(args):
     with torch.no_grad():
         for batch in val_dataloader:
             output = model(batch[0].to(device))
-            loss.append(torch.Tensor(loss_func(output, batch[1].to(device))).detach().cpu())
+            val_output.append(output.detach().cpu())
         for batch in train_dataloader:
             output = model(batch[0].to(device))
-            train_loss.append(torch.Tensor(loss_func(output, batch[1].to(device))).detach().cpu())
-    loss = torch.concatenate(loss)
-    train_loss = torch.concatenate(train_loss)
+            train_output.append(output.detach().cpu())
+    val_output = torch.concatenate(val_output)
+    train_output = torch.concatenate(train_output)
 
     epsilon_list = []
     epsilon_bound_2_list = []
@@ -54,35 +51,23 @@ def cal_robustness(args):
             max_index = torch.max(test_indices)
             train_cluster_shape = []
             cluster_epsilon_list = []
-            bound_3_list = []
-            epsilon = 0.0
 
             for i in range(max_index + 1):
-                train_loss_values = train_loss[(train_indices==i).nonzero()]
-                loss_values = loss[(test_indices==i).nonzero()]
+                model_train_output = train_output[(train_indices==i).nonzero()]
+                model_val_output = val_output[(test_indices==i).nonzero()]
             
-                if loss_values.shape[0] < 1 or train_loss_values.shape[0] < 1:
+                if model_train_output.shape[0] < 1 or model_val_output.shape[0] < 1:
                     continue
                 train_cluster_shape.append(train_indices.shape[0])
-                loss_subtraction = torch.abs(torch.cdist(loss_values, train_loss_values, p=1))
-                cluster_epsilon = torch.max(loss_subtraction.reshape(-1)).item()
+                output_subtraction = torch.abs(torch.cdist(model_val_output, model_train_output, p=1))
+                cluster_epsilon = torch.max(output_subtraction.reshape(-1)).item()
                 cluster_epsilon_list.append(cluster_epsilon)
-                epsilon = max(epsilon, cluster_epsilon)
-                bound_3 = max(torch.max(train_loss_values).item(), torch.max(loss_values).item()) - torch.mean(train_loss_values).item()
-                bound_3_list.append(bound_3)
 
             epsilon_bound_2 = np.sum(np.array(train_cluster_shape) * np.array(cluster_epsilon_list)) / np.sum(train_cluster_shape)
-            epsilon_bound_3 = np.sum(np.array(train_cluster_shape) * np.array(bound_3_list)) / np.sum(train_cluster_shape)
             temp_epsilon_bound_2_list.append(epsilon_bound_2)
-            temp_epsilon_bound_3_list.append(epsilon_bound_3)
-            temp_epsilon_list.append(epsilon)
 
-        epsilon_list.append(f"{torch.mean(torch.Tensor(temp_epsilon_list)).item()}+-{torch.var(torch.Tensor(temp_epsilon_list)).item()}")
         epsilon_bound_2_list.append(f"{torch.mean(torch.Tensor(temp_epsilon_bound_2_list)).item()}+-{torch.var(torch.Tensor(temp_epsilon_bound_2_list)).item()}")
-        epsilon_bound_3_list.append(f"{torch.mean(torch.Tensor(temp_epsilon_bound_3_list)).item()}+-{torch.var(torch.Tensor(temp_epsilon_bound_3_list)).item()}")
-    print(f"epsilon {epsilon_list}")
-    print(f"epsilon bound 2 {epsilon_bound_2_list}")
-    print(f"epsilon bound 4 {epsilon_bound_3_list}")
+    print(f"epsilon bound 3 {epsilon_bound_2_list}")
  
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
@@ -90,4 +75,4 @@ if __name__ == "__main__":
 
     parser.add_argument("--model_checkpoint", type=str, default="model_best.pth.tar")
     args = parser.parse_args()
-    cal_robustness(args)
+    cal_local_robustness(args)

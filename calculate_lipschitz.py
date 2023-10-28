@@ -41,6 +41,7 @@ def cal_lipschitz(args):
             max_index = torch.max(indices)
             cluster_shape = []
             cluster_lipschitz_list = []
+            cluster_diameter = []
 
             for i in range(max_index + 1):
                 model_input_values = pseudo_dataset.X[(indices==i).nonzero()]
@@ -57,8 +58,9 @@ def cal_lipschitz(args):
                 model_input_subtraction = torch.abs(torch.nn.functional.pdist(model_input_values, p=1))
                 cluster_lipschitz = torch.max((model_output_subtraction/model_input_subtraction).reshape(-1)).item()
                 cluster_lipschitz_list.append(cluster_lipschitz)
+                cluster_diameter.append(torch.max(torch.abs(torch.nn.functional.pdist(model_input_values, p=1))).item())
 
-            bound_5 = np.sum(np.array(cluster_shape) * np.array(cluster_lipschitz_list)) / np.sum(np.array(cluster_shape))
+            bound_5 = np.sum(np.array(cluster_shape) * np.array(cluster_diameter) * np.array(cluster_lipschitz_list)) / np.sum(np.array(cluster_shape))
             bound_5_list.append(bound_5)
         print(f"Num cluster {num_cluster}, values {torch.mean(torch.Tensor(bound_5_list)).item()}+-{torch.var(torch.Tensor(bound_5_list)).item()}")
 
