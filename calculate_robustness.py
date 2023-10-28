@@ -63,7 +63,7 @@ def cal_robustness(args):
             
                 if loss_values.shape[0] < 1 or train_loss_values.shape[0] < 1:
                     continue
-                train_cluster_shape.append(train_indices.shape[0])
+                train_cluster_shape.append(train_loss_values.shape[0])
                 loss_subtraction = torch.abs(torch.cdist(loss_values, train_loss_values, p=1))
                 cluster_epsilon = torch.max(loss_subtraction.reshape(-1)).item()
                 cluster_epsilon_list.append(cluster_epsilon)
