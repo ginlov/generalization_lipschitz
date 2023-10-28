@@ -35,14 +35,10 @@ def cal_local_robustness(args):
     val_output = torch.concatenate(val_output)
     train_output = torch.concatenate(train_output)
 
-    epsilon_list = []
     epsilon_bound_2_list = []
-    epsilon_bound_3_list = []
 
     for num_cluster in num_clusters:
-        temp_epsilon_list = []
         temp_epsilon_bound_2_list = []
-        temp_epsilon_bound_3_list = []
 
         for _ in range(10):
             centroids = select_partition_centroid(num_cluster, val_dataset)
@@ -59,6 +55,8 @@ def cal_local_robustness(args):
                 if model_train_output.shape[0] < 1 or model_val_output.shape[0] < 1:
                     continue
                 train_cluster_shape.append(train_indices.shape[0])
+                print(model_val_output.shape)
+                print(model_train_output.shape)
                 output_subtraction = torch.abs(torch.cdist(model_val_output, model_train_output, p=1))
                 cluster_epsilon = torch.max(output_subtraction.reshape(-1)).item()
                 cluster_epsilon_list.append(cluster_epsilon)
