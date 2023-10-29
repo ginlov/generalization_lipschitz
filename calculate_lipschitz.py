@@ -53,8 +53,6 @@ def cal_lipschitz(args):
 
                 model_input_values = model_input_values.reshape(number_items, -1)
                 model_output_values = model_output_values.reshape(number_items, -1)
-                print(model_output_values)
-                print(model_input_values)
                 cluster_shape.append(number_items)
                 model_output_subtraction = torch.abs(torch.nn.functional.pdist(model_output_values, p=1))
                 model_input_subtraction = torch.abs(torch.nn.functional.pdist(model_input_values, p=1))

@@ -59,7 +59,6 @@ def cal_local_robustness(args):
                 model_val_output = model_val_output.reshape(model_val_output.shape[0], -1)
                 train_cluster_shape.append(num_item)
                 output_subtraction = torch.abs(torch.cdist(model_val_output, model_train_output, p=1))
-                print(output_subtraction)
                 cluster_epsilon = torch.max(output_subtraction.reshape(-1)).item()
                 cluster_epsilon_list.append(cluster_epsilon)
 
