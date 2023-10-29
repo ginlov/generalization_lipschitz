@@ -34,6 +34,9 @@ def cal_local_robustness(args):
             train_output.append(output.detach().cpu())
     val_output = torch.concatenate(val_output)
     train_output = torch.concatenate(train_output)
+    _, num_class = val_output.shape
+    val_output = torch.nn.functional.one_hot(torch.argmax(val_output, dim=1), num_class).float()
+    train_output = torch.nn.functional.one_hot(torch.argmax(train_output, dim=1), num_class).float()
 
     epsilon_bound_2_list = []
 
