@@ -29,9 +29,8 @@ def cal_lipschitz(args):
             model_output.append(output.detach().cpu())
 
     model_output = torch.concatenate(model_output)
-    print(model_output.shape)
     _, num_class = model_output.shape
-    model_output = torch.nn.functional.one_hot(torch.argmax(model_output, dim=1), num_class).float()
+    # model_output = torch.nn.functional.one_hot(torch.argmax(model_output, dim=1), num_class).float()
 
     for num_cluster in num_clusters:
         bound_5_list = []
