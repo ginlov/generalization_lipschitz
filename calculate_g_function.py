@@ -21,9 +21,11 @@ def cal_g_function(args):
     train_dataset, valid_dataset = load_dataset(args.dataset)
 
     train_dataloader = data.DataLoader(train_dataset, batch_size=128, shuffle=False)
+    valid_dataloader = data.DataLoader(valid_dataset, batch_size=128, shuffle=False)
 
     loss_func = loss_l1
     train_loss = []
+    valid_loss = []
     device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
     model = model.to(device)
     model.eval()
@@ -32,9 +34,15 @@ def cal_g_function(args):
         for batch in train_dataloader:
             output = model(batch[0].to(device))
             train_loss.append(torch.Tensor(loss_func(output, batch[1].to(device))).detach().cpu())
+        for batch in valid_dataloader:
+            output = model(batch[0].to(device))
+            valid_loss.append(torch.Tensor(loss_func(output, batch[1].to(device))).detach().cpu())
 
     train_loss = torch.concatenate(train_loss)
-    C = torch.max(train_loss)
+    valid_loss = torch.concatenate(valid_loss)
+    C_temp = torch.max(valid_loss).item()
+    C = torch.max(train_loss).item()
+    C = max(C_temp, C)
     num_items = train_loss.shape[0]
     print("Train loss by L1 loss: {}".format(torch.mean(train_loss).item()))
 
