@@ -27,10 +27,10 @@ def cal_local_robustness(args):
     ## Feed dataset through nn
     with torch.no_grad():
         for batch in val_dataloader:
-            output = model(batch[0].to(device))
+            output = torch.nn.functional.softmax(model(batch[0].to(device)), dim=1)
             val_output.append(output.detach().cpu())
         for batch in train_dataloader:
-            output = model(batch[0].to(device))
+            output = torch.nn.functional.softmax(model(batch[0].to(device)), dim=1)
             train_output.append(output.detach().cpu())
     val_output = torch.concatenate(val_output)
     train_output = torch.concatenate(train_output)

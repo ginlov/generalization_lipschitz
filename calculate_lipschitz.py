@@ -25,7 +25,7 @@ def cal_lipschitz(args):
     model_output = []
     with torch.no_grad():
         for batch in dataloader:
-            output = model(batch[0].to(device))
+            output = torch.nn.functional.softmax(model(batch[0].to(device)), dim=1)
             model_output.append(output.detach().cpu())
 
     model_output = torch.concatenate(model_output)
