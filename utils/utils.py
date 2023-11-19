@@ -1,10 +1,14 @@
+from os.path import isfile
 from typing import Dict
 from torch import nn
 from utils.constant import MODEL_CONFIG, MODEL_MAP
 from torchvision import transforms, datasets
+from PIL import Image
 
 import argparse
 import torch
+import numpy as np
+import os
 
 def default_config():
     return {
@@ -57,9 +61,32 @@ def load_dataset(
         train_dataset = datasets.CIFAR10(root="cifar_train", 
                                          train=True, 
                                         transform=transforms.Compose([
-                                        transforms.RandomHorizontalFlip(),
                                         transforms.ToTensor()                                        ]),
                                         download=True)
+        val_dataset = datasets.CIFAR10(root="cifar_val",
+                                    train=False,
+                                    transform=transforms.Compose([
+                                        transforms.ToTensor(),
+                                    ]),
+                                    download=True)
+    elif dataset == "CIFAR10_AUG10":
+        if os.path.isfile("cifar10_aug10.pth"):
+            train_dataset = torch.load('cifar10_aug10.pth')
+        else:
+            train_dataset = create_augmented_dataset("CIFAR10", 10)
+            torch.save(train_dataset, "cifar10_aug10.pth")
+        val_dataset = datasets.CIFAR10(root="cifar_val",
+                                    train=False,
+                                    transform=transforms.Compose([
+                                        transforms.ToTensor(),
+                                    ]),
+                                    download=True)
+    elif dataset == "CIFAR10_AUG50":
+        if os.path.isfile("cifar10_aug50.pth"):
+            train_dataset = torch.load('cifar10_aug50.pth')
+        else:
+            train_dataset = create_augmented_dataset("CIFAR10", 50)
+            torch.save(train_dataset, "cifar10_aug50.pth")
         val_dataset = datasets.CIFAR10(root="cifar_val",
                                     train=False,
                                     transform=transforms.Compose([
@@ -82,7 +109,6 @@ def load_dataset(
     elif dataset == "SVHN":
         train_dataset = datasets.SVHN(root="svhn_train", split = 'train', 
                                         transform=transforms.Compose([
-                                        transforms.RandomHorizontalFlip(),
                                         transforms.ToTensor(),
                                         ]),
                                         download=True)
@@ -92,6 +118,31 @@ def load_dataset(
                                         transforms.ToTensor(),
                                     ]),
                                     download=True)
+    elif dataset == "SVHN_AUG10":
+        if os.path.isfile("svhn_aug10.pth"):
+            train_dataset = torch.load("SVHN_AUG10.pth")
+        else:
+            train_dataset = create_augmented_dataset("SVHN", 10)
+            torch.save(train_dataset, "svhn_aug10.pth")
+        val_dataset = datasets.SVHN(root="svhn_val",
+                                    split = "test",
+                                    transform=transforms.Compose([
+                                        transforms.ToTensor(),
+                                    ]),
+                                    download=True)
+    elif dataset == "SVHN_AUG50":
+        if os.path.isfile("svhn_aug50.pth"):
+            train_dataset = torch.load("SVHN_AUG50.pth")
+        else:
+            train_dataset = create_augmented_dataset("SVHN", 50)
+            torch.save(train_dataset, "svhn_aug50.pth")
+        val_dataset = datasets.SVHN(root="svhn_val",
+                                    split = "test",
+                                    transform=transforms.Compose([
+                                        transforms.ToTensor(),
+                                    ]),
+                                    download=True)
+
     elif dataset == "Fashion_MNIST":
         train_dataset = datasets.FashionMNIST(root="fashion_mnist_train", train=True, 
                                         transform=transforms.Compose([
@@ -106,6 +157,69 @@ def load_dataset(
                                     ]),
                                     download=True)
     return train_dataset, val_dataset
+
+class CustomDataset(torch.utils.data.Dataset):
+    def __init__(
+        self,
+        x,
+        y,
+        transform,
+        target_transform=None,
+        **kwargs
+    ):
+        self.x = x
+        self.y = y
+        self.transform = transform
+        self.target_transform = target_transform
+        super().__init__(**kwargs)
+
+    def __getitem__(self, index):
+        img, label = self.x[index], self.y[index]
+        img = Image.fromarray(img)
+
+        if self.transform is not None:
+            img = self.transform(img)
+
+        if self.target_transform is not None:
+            label = self.target_transform(label)
+
+        return img, label
+
+    def __len__(self):
+        return len(self.data)
+
+def create_augmented_dataset(
+    original_dataset: str = "CIFAR10",
+    num_augmented: int = 10
+    ):
+    if original_dataset == "CIFAR10":
+        train_dataset = datasets.CIFAR10(root="cifar_train", 
+                                         train=True, 
+                                        transform=transforms.Compose([
+                                        transforms.ToTensor()                                        ]),
+                                        download=True)
+    elif original_dataset == "SVHN":
+        train_dataset = datasets.SVHN(root="svhn_train", split = 'train', 
+                                        transform=transforms.Compose([
+                                        transforms.ToTensor(),
+                                        ]),
+                                        download=True)
+    augmented_data = [train_dataset.data.reshape(-1, 3, 32, 32)]
+    label = [train_dataset.targets]
+    for _ in range(num_augmented):
+        augmented_data.append(transforms.RandAugment()(torch.tensor(augmented_data[0], dtype=torch.uint8)).numpy())
+        label.append(label[0])
+    label = np.concatenate(np.array(label)).tolist()
+    augmented_data = np.concatenate(augmented_data).reshape(-1, 32, 32, 3)
+    return CustomDataset(
+        x = augmented_data,
+        y = label,
+        transform = transforms.Compose([
+            transforms.ToTensor()
+        ]),
+        target_transform = None
+    )
+
 
 def loss_l1(y_pred, y_true):
     label_pred = torch.argmax(y_pred, dim=1)
