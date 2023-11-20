@@ -1,6 +1,7 @@
 from os.path import isfile
 from typing import Dict
 from torch import nn
+from torchvision.transforms.transforms import ToTensor
 from utils.constant import MODEL_CONFIG, MODEL_MAP
 from torchvision import transforms, datasets
 from PIL import Image
@@ -71,10 +72,18 @@ def load_dataset(
                                     download=True)
     elif dataset == "CIFAR10_AUG10":
         if os.path.isfile("cifar10_aug10.pth"):
-            train_dataset = torch.load('cifar10_aug10.pth')
+            train_data = torch.load('cifar10_aug10.pth')
+            train_dataset = CustomDataset(
+                x=train_data["x"],
+                y=train_data["y"],
+                transform=transforms.ToTensor()
+            )
         else:
             train_dataset = create_augmented_dataset("CIFAR10", 10)
-            torch.save(train_dataset, "cifar10_aug10.pth")
+            torch.save({
+                "x": train_dataset.x,
+                "y": train_dataset.y
+            }, "cifar10_aug10.pth")
         val_dataset = datasets.CIFAR10(root="cifar_val",
                                     train=False,
                                     transform=transforms.Compose([
@@ -83,11 +92,19 @@ def load_dataset(
                                     download=True)
     elif dataset == "CIFAR10_AUG50":
         if os.path.isfile("cifar10_aug50.pth"):
-            train_dataset = torch.load('cifar10_aug50.pth')
+            train_data = torch.load('cifar10_aug50.pth')
+            train_dataset = CustomDataset(
+                x=train_data["x"],
+                y=train_data["y"],
+                transform=transforms.ToTensor()
+            )
         else:
             train_dataset = create_augmented_dataset("CIFAR10", 50)
             print("train_dataset ok, start saving to file")
-            torch.save(train_dataset, "cifar10_aug50.pth")
+            torch.save({
+                "x": train_dataset.x,
+                "y": train_dataset.y
+            }, "cifar10_aug50.pth")
             print("end saving to file")
         val_dataset = datasets.CIFAR10(root="cifar_val",
                                     train=False,
@@ -122,10 +139,18 @@ def load_dataset(
                                     download=True)
     elif dataset == "SVHN_AUG10":
         if os.path.isfile("svhn_aug10.pth"):
-            train_dataset = torch.load("SVHN_AUG10.pth")
+            train_data = torch.load("SVHN_AUG10.pth")
+            train_dataset = CustomDataset(
+                x=train_data["x"],
+                y=train_data["y"],
+                transform=transforms.ToTensor()
+            )
         else:
             train_dataset = create_augmented_dataset("SVHN", 10)
-            torch.save(train_dataset, "svhn_aug10.pth")
+            torch.save({
+                "x": train_dataset.x,
+                "y": train_dataset.y
+            }, "svhn_aug10.pth")
         val_dataset = datasets.SVHN(root="svhn_val",
                                     split = "test",
                                     transform=transforms.Compose([
@@ -134,10 +159,18 @@ def load_dataset(
                                     download=True)
     elif dataset == "SVHN_AUG50":
         if os.path.isfile("svhn_aug50.pth"):
-            train_dataset = torch.load("SVHN_AUG50.pth")
+            train_data = torch.load("SVHN_AUG50.pth")
+            train_dataset = CustomDataset(
+                x=train_data["x"],
+                y=train_data["y"],
+                transforms=transforms.ToTensor()
+            )
         else:
             train_dataset = create_augmented_dataset("SVHN", 50)
-            torch.save(train_dataset, "svhn_aug50.pth")
+            torch.save({
+                "x": train_dataset.x,
+                "y": train_dataset.y
+            }, "svhn_aug50.pth")
         val_dataset = datasets.SVHN(root="svhn_val",
                                     split = "test",
                                     transform=transforms.Compose([
