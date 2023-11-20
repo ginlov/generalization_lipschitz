@@ -154,7 +154,9 @@ def load_dataset(
                                     download=True)
     elif dataset == "SVHN_AUG10":
         if os.path.isfile("svhn_aug10.pth"):
-            train_data = torch.load("SVHN_AUG10.pth")
+            # train_data = torch.load("SVHN_AUG10.pth")
+            with open("svhn_aug10.pth", "rb") as f:
+                train_data = pickle.load(f)
             train_dataset = CustomDataset(
                 x=train_data["x"],
                 y=train_data["y"],
@@ -162,10 +164,15 @@ def load_dataset(
             )
         else:
             train_dataset = create_augmented_dataset("SVHN", 10)
-            torch.save({
-                "x": train_dataset.x,
-                "y": train_dataset.y
-            }, "svhn_aug10.pth")
+            # torch.save({
+            #     "x": train_dataset.x,
+            #     "y": train_dataset.y
+            # }, "svhn_aug10.pth")
+            with open("svhn_aug10.pth", "wb+") as f:
+                pickle.dump({
+                    "x": train_dataset.x,
+                    "y": train_dataset.y
+                }, f)
         val_dataset = datasets.SVHN(root="svhn_val",
                                     split = "test",
                                     transform=transforms.Compose([
@@ -174,18 +181,25 @@ def load_dataset(
                                     download=True)
     elif dataset == "SVHN_AUG50":
         if os.path.isfile("svhn_aug50.pth"):
-            train_data = torch.load("SVHN_AUG50.pth")
-            train_dataset = CustomDataset(
+            # train_data = torch.load("SVHN_AUG50.pth")
+            with open("svhn_aug50.pth", "rb") as f:
+                train_data = pickle.load(f)
+            train_dataset =  CustomDataset(
                 x=train_data["x"],
                 y=train_data["y"],
-                transforms=transforms.ToTensor()
+                transform=transforms.ToTensor()
             )
         else:
             train_dataset = create_augmented_dataset("SVHN", 50)
-            torch.save({
-                "x": train_dataset.x,
-                "y": train_dataset.y
-            }, "svhn_aug50.pth")
+            # torch.save({
+            #     "x": train_dataset.x,
+            #     "y": train_dataset.y
+            # }, "svhn_aug50.pth")
+            with open("svhn_aug50.pth", "wb+") as f:
+                train_data = pickle.dump({
+                    "x": train_dataset.x,
+                    "y": train_dataset.y
+                }, f)
         val_dataset = datasets.SVHN(root="svhn_val",
                                     split = "test",
                                     transform=transforms.Compose([
