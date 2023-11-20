@@ -10,6 +10,7 @@ import argparse
 import torch
 import numpy as np
 import os
+import pickle
 
 def default_config():
     return {
@@ -72,7 +73,9 @@ def load_dataset(
                                     download=True)
     elif dataset == "CIFAR10_AUG10":
         if os.path.isfile("cifar10_aug10.pth"):
-            train_data = torch.load('cifar10_aug10.pth')
+            # train_data = torch.load('cifar10_aug10.pth')
+            with open("cifar10_aug10.pth", "rb") as f:
+                train_data = pickle.load(f)
             train_dataset = CustomDataset(
                 x=train_data["x"],
                 y=train_data["y"],
@@ -80,10 +83,15 @@ def load_dataset(
             )
         else:
             train_dataset = create_augmented_dataset("CIFAR10", 10)
-            torch.save({
-                "x": train_dataset.x,
-                "y": train_dataset.y
-            }, "cifar10_aug10.pth")
+            # torch.save({
+            #     "x": train_dataset.x.clone(),
+            #     "y": train_dataset.y.clone(),
+            # }, "cifar10_aug10.pth")
+            with open("cifar10_aug10.pth", "wb+") as f:
+                pickle.dump({
+                    "x": train_dataset.x,
+                    "y": train_dataset.y
+                }, f)
         val_dataset = datasets.CIFAR10(root="cifar_val",
                                     train=False,
                                     transform=transforms.Compose([
@@ -92,7 +100,9 @@ def load_dataset(
                                     download=True)
     elif dataset == "CIFAR10_AUG50":
         if os.path.isfile("cifar10_aug50.pth"):
-            train_data = torch.load('cifar10_aug50.pth')
+            # train_data = torch.load('cifar10_aug50.pth')
+            with open("cifar10_aug50.pth", "rb") as f:
+                train_data = pickle.load(f)
             train_dataset = CustomDataset(
                 x=train_data["x"],
                 y=train_data["y"],
@@ -101,10 +111,15 @@ def load_dataset(
         else:
             train_dataset = create_augmented_dataset("CIFAR10", 50)
             print("train_dataset ok, start saving to file")
-            torch.save({
-                "x": train_dataset.x,
-                "y": train_dataset.y
-            }, "cifar10_aug50.pth")
+            # torch.save({
+            #     "x": train_dataset.x,
+            #     "y": train_dataset.y
+            # }, "cifar10_aug50.pth")
+            with open("cifar10_aug50.pth", "wb+") as f:
+                pickle.dump({
+                    "x": train_dataset.x,
+                    "y": train_dataset.y
+                }, f)
             print("end saving to file")
         val_dataset = datasets.CIFAR10(root="cifar_val",
                                     train=False,
