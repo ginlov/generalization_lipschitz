@@ -206,11 +206,15 @@ def create_augmented_dataset(
                                         download=True)
     augmented_data = [train_dataset.data.reshape(-1, 3, 32, 32)]
     label = [train_dataset.targets]
+    print("Start augmenting data")
     for _ in range(num_augmented):
         augmented_data.append(transforms.RandAugment()(torch.tensor(augmented_data[0], dtype=torch.uint8)).numpy())
         label.append(label[0])
+    print("Ending augmenting data")
     label = np.concatenate(np.array(label)).tolist()
+    print("Ending concatenating label")
     augmented_data = np.concatenate(augmented_data).reshape(-1, 32, 32, 3)
+    print("Ending concatenating data")
     return CustomDataset(
         x = augmented_data,
         y = label,
@@ -219,7 +223,6 @@ def create_augmented_dataset(
         ]),
         target_transform = None
     )
-
 
 def loss_l1(y_pred, y_true):
     label_pred = torch.argmax(y_pred, dim=1)
