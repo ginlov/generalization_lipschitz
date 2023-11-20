@@ -186,7 +186,7 @@ class CustomDataset(torch.utils.data.Dataset):
         return img, label
 
     def __len__(self):
-        return len(self.data)
+        return len(self.x)
 
 def create_augmented_dataset(
     original_dataset: str = "CIFAR10",
