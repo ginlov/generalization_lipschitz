@@ -262,14 +262,15 @@ def create_augmented_dataset(
                                         transform=transforms.Compose([
                                         transforms.ToTensor()                                        ]),
                                         download=True)
+        label = [train_dataset.targets]
     elif original_dataset == "SVHN":
         train_dataset = datasets.SVHN(root="svhn_train", split = 'train', 
                                         transform=transforms.Compose([
                                         transforms.ToTensor(),
                                         ]),
                                         download=True)
+        label = [train_dataset.labels]
     augmented_data = [train_dataset.data.reshape(-1, 3, 32, 32)]
-    label = [train_dataset.targets]
     print("Start augmenting data")
     for _ in range(num_augmented):
         augmented_data.append(transforms.RandAugment()(torch.tensor(augmented_data[0], dtype=torch.uint8)).numpy())
