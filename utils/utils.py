@@ -86,7 +86,9 @@ def load_dataset(
             train_dataset = torch.load('cifar10_aug50.pth')
         else:
             train_dataset = create_augmented_dataset("CIFAR10", 50)
+            print("train_dataset ok, start saving to file")
             torch.save(train_dataset, "cifar10_aug50.pth")
+            print("end saving to file")
         val_dataset = datasets.CIFAR10(root="cifar_val",
                                     train=False,
                                     transform=transforms.Compose([
