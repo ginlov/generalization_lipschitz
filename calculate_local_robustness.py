@@ -1,6 +1,7 @@
-from utils.utils import default_config, add_dict_to_argparser, create_model_from_config, load_dataset, loss_l1
+from utils.utils import default_config, add_dict_to_argparser, create_model_from_config, load_dataset, loss_l1, CustomDataset
 from utils.split_partitions import *
 from torch.utils import data
+from torchvision import transforms
 
 import torch
 import argparse
@@ -14,6 +15,15 @@ def cal_local_robustness(args):
     model.load_state_dict(model_checkpoint["state_dict"])
 
     train_dataset, val_dataset = load_dataset(args.dataset)
+    if isinstance(train_dataset, CustomDataset):
+        length_of_data = len(train_dataset.x)
+        idx = np.random.choice(np.arange(length_of_data), 50000, replace=True)
+        train_dataset = CustomDataset(
+            x=train_dataset.x[idx],
+            y=np.asarray(train_dataset.y)[idx],
+            transform=transforms.ToTensor()
+        )
+
     train_dataloader = data.DataLoader(train_dataset, batch_size=128, shuffle=False)
     val_dataloader = data.DataLoader(val_dataset, batch_size=128, shuffle=False)
 
