@@ -19,7 +19,8 @@ def default_config():
         "model_type": 0,
         "clamp_value": -1.0,
         "norm_type": "batch",
-        "from_checkpoint": False
+        "from_checkpoint": False,
+        "num_epoch": 20
     }
 
 def add_dict_to_argparser(

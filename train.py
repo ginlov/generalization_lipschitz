@@ -24,7 +24,8 @@ def start_train(
         "log_file_name": log_file_name, 
         "clamp_value": args.clamp_value,
         "from_checkpoint": args.from_checkpoint,
-        "log_folder": log_folder
+        "log_folder": log_folder,
+        "epoch": args.num_epoch
     }
 
     train(**training_config)
