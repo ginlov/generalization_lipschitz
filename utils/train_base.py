@@ -39,7 +39,6 @@ def train(model, dataset, log_file_name="", log_folder="log", clamp_value=-1, fr
     ### LOADING DATASET ###########
     ###############################
     logger.info("Loading data")
-    print(from_checkpoint)
     logger.info(from_checkpoint)
 
     train_dataset, val_dataset = load_dataset(dataset)
@@ -62,7 +61,7 @@ def train(model, dataset, log_file_name="", log_folder="log", clamp_value=-1, fr
                                 weight_decay=weight_decay)
     scheduler = torch.optim.lr_scheduler.StepLR(optimizer, step_size=30, gamma=0.1)
     logger.info("Start training")
-    from_checkpoint = False
+    # from_checkpoint = False
     if from_checkpoint:
         checkpoint = torch.load(f"{log_folder}/checkpoint.pth.tar", map_location=device)
         model.load_state_dict(checkpoint["state_dict"])
