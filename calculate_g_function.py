@@ -20,6 +20,7 @@ def cal_g_function(args):
     model.load_state_dict(model_checkpoint["state_dict"])
 
     train_dataset, valid_dataset = load_dataset(args.dataset)
+    num_items = len(train_dataset)
     if isinstance(train_dataset, CustomDataset):
         length_of_data = len(train_dataset.x)
         idx = np.random.choice(np.arange(length_of_data), 50000, replace=True)
@@ -51,7 +52,7 @@ def cal_g_function(args):
     C_temp = torch.max(valid_loss).item()
     C = torch.max(train_loss).item()
     C = max(C_temp, C)
-    num_items = train_loss.shape[0]
+    # num_items = train_loss.shape[0]
     print("Train loss by L1 loss: {}".format(torch.mean(train_loss).item()))
 
     for num_cluster in num_clusters:
