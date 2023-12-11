@@ -4,6 +4,7 @@ from torch import nn
 from torchvision.transforms.transforms import ToTensor
 from utils.constant import MODEL_CONFIG, MODEL_MAP
 from torchvision import transforms, datasets
+from torchvision.models import resnet18, ResNet18_Weights
 from PIL import Image
 
 import argparse
@@ -34,6 +35,9 @@ def add_dict_to_argparser(
 def create_model_from_config(
     args: argparse.Namespace
     ):
+    if args.model == "resnet18_imagenet":
+        model = resnet18(ResNet18_Weights.IMAGENET1K_V1)
+        return model
     config = MODEL_CONFIG[args.model]
     if args.model_type == 2:
         if args.norm_type == "BN":
@@ -60,7 +64,18 @@ def create_model_from_config(
 def load_dataset(
     dataset: str = "CIFAR10"
     ):
-    if dataset == "CIFAR10":
+    if dataset == "IMAGENET":
+        train_dataset = datasets.IMAGENET(
+            root='imagenet',
+            split='train',
+            transform=transforms.ToTensor(),
+        )
+        val_dataset = datasets.IMAGENET(
+            root='imagenet_val',
+            split='val',
+            transform=transforms.ToTensor()
+        )
+    elif dataset == "CIFAR10":
         train_dataset = datasets.CIFAR10(root="cifar_train", 
                                          train=True, 
                                         transform=transforms.Compose([
