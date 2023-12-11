@@ -65,12 +65,12 @@ def load_dataset(
     dataset: str = "CIFAR10"
     ):
     if dataset == "IMAGENET":
-        train_dataset = datasets.IMAGENET(
+        train_dataset = datasets.ImageNet(
             root='imagenet',
             split='train',
             transform=transforms.ToTensor(),
         )
-        val_dataset = datasets.IMAGENET(
+        val_dataset = datasets.ImageNet(
             root='imagenet_val',
             split='val',
             transform=transforms.ToTensor()
