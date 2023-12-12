@@ -29,6 +29,7 @@ class ImageNetDataset(datasets.ImageFolder):
         ):
         # root = self.root = os.path.expanduser(root)
         self.root = root
+        self.test = root
         self.split = split,
         parse_dev_kit(root, "test")
         wnid_to_classes = load_meta_file("data")[0]
@@ -43,7 +44,7 @@ class ImageNetDataset(datasets.ImageFolder):
         
     @property
     def split_folder(self)->str:
-        return os.path.join(self.root, self.split)
+        return os.path.join(self.test, self.split)
 
     def extra_repr(self) -> str:
         return "Split: {split}".format(**self.__dict__)
