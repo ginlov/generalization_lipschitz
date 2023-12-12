@@ -1,6 +1,9 @@
 from os.path import isfile
-from typing import Dict
+from typing import Dict, Tuple, List, Iterator
+from contextlib import contextmanager
 from torch import nn
+from torchvision.datasets.utils import extract_archive
+from torchvision.datasets.imagenet import load_meta_file
 from torchvision.transforms.transforms import ToTensor
 from utils.constant import MODEL_CONFIG, MODEL_MAP
 from torchvision import transforms, datasets
@@ -8,10 +11,83 @@ from torchvision.models import resnet18, ResNet18_Weights
 from PIL import Image
 
 import argparse
+import shutil
+import tempfile
 import torch
 import numpy as np
 import os
 import pickle
+
+META_FILE = "meta.bin"
+
+class ImageNetDataset(datasets.ImageFolder):
+    def __init__(
+            self,
+            root: str,
+            split: str = 'train',
+            **kwargs
+        ):
+        root = self.root = os.path.expanduser(root)
+        self.split = split,
+        parse_dev_kit(root, "test")
+        wnid_to_classes = load_meta_file(self.root)
+
+        super().__init__(self.split_folder, **kwargs)
+        self.root = root
+
+        self.wnids = self.classes
+        self.wnid_to_idx = self.class_to_idx
+        self.classes = [wnid_to_classes[wnid] for wnid in self.wnids]
+        self.class_to_idx = {cls: idx for idx, clss in enumerate(self.classes) for cls in clss}
+        
+    @property
+    def split_folder(self)->str:
+        return os.path.join(self.root, self.split)
+
+    def extra_repr(self) -> str:
+        return "Split: {split}".format(**self.__dict__)
+
+def parse_dev_kit(root: str, file: str):
+
+    import scipy.io as sio
+
+    def parse_meta_mat(devkit_root: str) -> Tuple[Dict[int, str], Dict[str, Tuple[str, ...]]]:
+        metafile = os.path.join(devkit_root, "data", "meta.mat")
+        meta = sio.loadmat(metafile, squeeze_me=True)["synsets"]
+        nums_children = list(zip(*meta))[4]
+        meta = [meta[idx] for idx, num_children in enumerate(nums_children) if num_children == 0]
+        idcs, wnids, classes = list(zip(*meta))[:3]
+        classes = [tuple(clss.split(", ")) for clss in classes]
+        idx_to_wnid = {idx: wnid for idx, wnid in zip(idcs, wnids)}
+        wnid_to_classes = {wnid: clss for wnid, clss in zip(wnids, classes)}
+        return idx_to_wnid, wnid_to_classes
+
+    def parse_val_groundtruth_txt(devkit_root: str) -> List[int]:
+        file = os.path.join(devkit_root, "data", "ILSVRC2012_validation_ground_truth.txt")
+        with open(file) as txtfh:
+            val_idcs = txtfh.readlines()
+        return [int(val_idx) for val_idx in val_idcs]
+
+    @contextmanager
+    def get_tmp_dir() -> Iterator[str]:
+        tmp_dir = tempfile.mkdtemp()
+        try:
+            yield tmp_dir
+        finally:
+            shutil.rmtree(tmp_dir)
+
+    if file is None:
+        raise ValueError()
+
+    with get_tmp_dir() as tmp_dir:
+        # extract_archive(os.path.join(root, file), tmp_dir)
+
+        devkit_root = os.path.join(root, "ILSVRC2012_devkit_t12")
+        idx_to_wnid, wnid_to_classes = parse_meta_mat(devkit_root)
+        val_idcs = parse_val_groundtruth_txt(devkit_root)
+        val_wnids = [idx_to_wnid[idx] for idx in val_idcs]
+
+        torch.save((wnid_to_classes, val_wnids), os.path.join(root, META_FILE))
 
 def default_config():
     return {
