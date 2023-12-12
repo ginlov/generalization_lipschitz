@@ -82,7 +82,7 @@ def parse_dev_kit(root: str, file: str):
     with get_tmp_dir() as tmp_dir:
         # extract_archive(os.path.join(root, file), tmp_dir)
 
-        devkit_root = os.path.join(root, "ILSVRC2012_devkit_t12")
+        devkit_root = os.path.join('data', "ILSVRC2012_devkit_t12")
         idx_to_wnid, wnid_to_classes = parse_meta_mat(devkit_root)
         val_idcs = parse_val_groundtruth_txt(devkit_root)
         val_wnids = [idx_to_wnid[idx] for idx in val_idcs]
@@ -141,13 +141,21 @@ def load_dataset(
     dataset: str = "CIFAR10"
     ):
     if dataset == "IMAGENET":
-        train_dataset = datasets.ImageFolder(
-            root="/kaggle/input/imagenet-object-localization-challenge/ILSVRC/Data/CLS-LOC/train",
-            transform=transforms.ToTensor()
+        # train_dataset = datasets.ImageFolder(
+        #     root="/kaggle/input/imagenet-object-localization-challenge/ILSVRC/Data/CLS-LOC/train",
+        #     transform=transforms.ToTensor()
+        # )
+        # val_dataset = datasets.ImageFolder(
+        #     root="/kaggle/input/imagenet-object-localization-challenge/ILSVRC/Data/CLS-LOC/test",
+        #     transform=transforms.ToTensor()
+        # )
+        train_dataset = ImageNetDataset(
+            root="/kaggle/input/imagenet-object-localization-challenge/ILSVRC/Data/CLS-LOC/",
+            split="train",
         )
-        val_dataset = datasets.ImageFolder(
-            root="/kaggle/input/imagenet-object-localization-challenge/ILSVRC/Data/CLS-LOC/test",
-            transform=transforms.ToTensor()
+        val_dataset= ImageNetDataset(
+            root="/kaggle/input/imagenet-object-localization-challenge/ILSVRC/Data/CLS-LOC/",
+            split="val",
         )
     elif dataset == "CIFAR10":
         train_dataset = datasets.CIFAR10(root="cifar_train", 
