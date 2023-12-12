@@ -27,10 +27,11 @@ class ImageNetDataset(datasets.ImageFolder):
             split: str = 'train',
             **kwargs
         ):
-        root = self.root = os.path.expanduser(root)
+        # root = self.root = os.path.expanduser(root)
+        self.root = root
         self.split = split,
         parse_dev_kit(root, "test")
-        wnid_to_classes = load_meta_file("data")
+        wnid_to_classes = load_meta_file("data")[0]
 
         super().__init__(self.split_folder, **kwargs)
         self.root = root
