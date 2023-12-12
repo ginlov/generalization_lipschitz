@@ -30,7 +30,7 @@ class ImageNetDataset(datasets.ImageFolder):
         root = self.root = os.path.expanduser(root)
         self.split = split,
         parse_dev_kit(root, "test")
-        wnid_to_classes = load_meta_file(self.root)
+        wnid_to_classes = load_meta_file("data")
 
         super().__init__(self.split_folder, **kwargs)
         self.root = root
