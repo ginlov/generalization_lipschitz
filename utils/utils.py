@@ -87,7 +87,7 @@ def parse_dev_kit(root: str, file: str):
         val_idcs = parse_val_groundtruth_txt(devkit_root)
         val_wnids = [idx_to_wnid[idx] for idx in val_idcs]
 
-        torch.save((wnid_to_classes, val_wnids), os.path.join(root, META_FILE))
+        torch.save((wnid_to_classes, val_wnids), os.path.join("data", META_FILE))
 
 def default_config():
     return {
