@@ -34,6 +34,7 @@ class ImageNetDataset(datasets.ImageFolder):
         parse_dev_kit(root, "test")
         wnid_to_classes = load_meta_file("data")[0]
 
+        self.split = self.split[0]
         print(type(self.test), self.test)
         print(type(self.split), self.split)
         super().__init__(self.split_folder, **kwargs)
