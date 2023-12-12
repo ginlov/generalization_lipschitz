@@ -33,10 +33,18 @@ class ImageNetDataset(datasets.ImageFolder):
         self.split = split,
         parse_dev_kit(root, "test")
         wnid_to_classes = load_meta_file("data")[0]
+        wnids = load_meta_file("data")[1]
 
         self.split = self.split[0]
         print(type(self.test), self.test)
         print(type(self.split), self.split)
+        if split == "val":
+            images = sorted(os.path.join(self.split_folder, image) for image in os.listdir(self.split_folder))
+            for wnid in set(wnids):
+                os.mkdir(os.path.join(self.split_folder, wnid))
+
+            for wnid, img_file in zip(wnids, images):
+                shutil.move(img_file, os.path.join(self.split_folder, wnid, os.path.basename(img_file)))
         super().__init__(self.split_folder, **kwargs)
         self.root = root
 
