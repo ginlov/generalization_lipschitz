@@ -157,12 +157,12 @@ def load_dataset(
         train_dataset = ImageNetDataset(
             root="/kaggle/input/imagenet-object-localization-challenge/ILSVRC/Data/CLS-LOC/",
             split="train",
-            transform=transforms.compose([transforms.ToTensor(), transforms.Resize([3, 64, 64])])
+            transform=transforms.Compose([transforms.ToTensor(), transforms.Resize([3, 64, 64])])
         )
         val_dataset= ImageNetDataset(
             root="data/",
             split="val",
-            transform=transforms.compose([transforms.ToTensor(), transforms.Resize([3, 64, 64])])
+            transform=transforms.Compose([transforms.ToTensor(), transforms.Resize([3, 64, 64])])
 
         )
     elif dataset == "CIFAR10":
