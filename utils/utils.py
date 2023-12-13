@@ -36,10 +36,10 @@ class ImageNetDataset(datasets.ImageFolder):
         wnids = load_meta_file("data")[1]
 
         self.split = self.split[0]
-        print(type(self.test), self.test)
-        print(type(self.split), self.split)
         if split == "val":
             images = sorted(os.path.join(self.split_folder, image) for image in os.listdir(self.split_folder))
+            if len(images) < 10000:
+                pass
             for wnid in set(wnids):
                 os.mkdir(os.path.join(self.split_folder, wnid))
 
