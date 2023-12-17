@@ -38,13 +38,12 @@ class ImageNetDataset(datasets.ImageFolder):
         self.split = self.split[0]
         if split == "val":
             images = sorted(os.path.join(self.split_folder, image) for image in os.listdir(self.split_folder))
-            if len(images) < 10000:
-                pass
-            for wnid in set(wnids):
-                os.mkdir(os.path.join(self.split_folder, wnid))
+            if len(images) >= 50000:
+                for wnid in set(wnids):
+                    os.mkdir(os.path.join(self.split_folder, wnid))
 
-            for wnid, img_file in zip(wnids, images):
-                shutil.move(img_file, os.path.join(self.split_folder, wnid, os.path.basename(img_file)))
+                for wnid, img_file in zip(wnids, images):
+                    shutil.move(img_file, os.path.join(self.split_folder, wnid, os.path.basename(img_file)))
         super().__init__(self.split_folder, **kwargs)
         self.root = root
 
