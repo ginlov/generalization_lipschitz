@@ -7,7 +7,7 @@ import torch
 import argparse
 import math
 
-num_clusters = [100, 1000, 5000, 10000]
+num_clusters = [5000, 10000, 50000]
 sigma = {
     "one": 0.01,
     "two": 0.05,

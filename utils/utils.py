@@ -7,7 +7,7 @@ from torchvision.datasets.imagenet import load_meta_file
 from torchvision.transforms.transforms import ToTensor
 from utils.constant import MODEL_CONFIG, MODEL_MAP
 from torchvision import transforms, datasets
-from torchvision.models import resnet18, ResNet18_Weights
+from torchvision.models import resnet18, ResNet18_Weights, regnet_y_400mf, RegNet_Y_400MF_Weights
 from PIL import Image
 
 import argparse
@@ -125,6 +125,9 @@ def create_model_from_config(
     ):
     if args.model == "resnet18_imagenet":
         model = resnet18(ResNet18_Weights.IMAGENET1K_V1)
+        return model
+    elif args.model == "regnet_imagenet":
+        model = regnet_y_400mf(RegNet_Y_400MF_Weights.IMAGENET1K_V1)
         return model
     config = MODEL_CONFIG[args.model]
     if args.model_type == 2:
