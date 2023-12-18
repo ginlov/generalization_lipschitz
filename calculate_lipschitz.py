@@ -16,7 +16,7 @@ def cal_lipschitz(args):
 
     _, valid_dataset = load_dataset(args.dataset)
 
-    if args.dataset == "IMAGENETN":
+    if args.dataset == "IMAGENET":
         num_features = [3, 64, 64]
     else:
         num_features = [3, 32, 32]
@@ -45,6 +45,7 @@ def cal_lipschitz(args):
         for _ in range(10):
             centroids = select_partition_centroid(num_cluster, valid_dataset)
             indices = assign_partition(pseudo_dataset, centroids)
+            print("ok")
             max_index = torch.max(indices)
             cluster_shape = []
             cluster_lipschitz_list = []
