@@ -11,7 +11,7 @@ num_clusters =  [5000, 10000, 50000]
 
 def cal_robustness(args):
     model = create_model_from_config(args)
-    if args.model != "resnet18_imagenet":
+    if args.model not in ["resnet18_imagenet", "regnet_imagenet"]:
         model_checkpoint = torch.load(args.model_checkpoint, map_location="cpu")
         model.load_state_dict(model_checkpoint["state_dict"])
 
