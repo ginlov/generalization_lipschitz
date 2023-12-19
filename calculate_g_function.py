@@ -57,6 +57,7 @@ def cal_g_function(args):
     print("Train loss by L1 loss: {}".format(torch.mean(train_loss).item()))
 
     for num_cluster in num_clusters:
+        print("ok")
         g_temp_values = {
             "one": [],
             "two": [],
