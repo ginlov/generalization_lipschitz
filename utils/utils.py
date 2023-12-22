@@ -155,22 +155,33 @@ def create_model_from_config(
 def load_dataset(
     dataset: str = "CIFAR10"
     ):
-    if dataset == "IMAGENET":
-        # train_dataset = ImageNetDataset(
-        #     root="/kaggle/input/imagenet-object-localization-challenge/ILSVRC/Data/CLS-LOC/",
-        #     split="train",
-        #     # transform=transforms.Compose([transforms.ToTensor(), transforms.Resize([64, 64])]),
-        #     transform=ResNet18_Weights.IMAGENET1K_V1.transforms()
-        # )
-        train_dataset = None
+    if dataset == "IMAGENET_RESNET":
+        train_dataset = ImageNetDataset(
+            root="/kaggle/input/imagenet-object-localization-challenge/ILSVRC/Data/CLS-LOC/",
+            split="train",
+            # transform=transforms.Compose([transforms.ToTensor(), transforms.Resize([64, 64])]),
+            transform=ResNet18_Weights.IMAGENET1K_V1.transforms()
+        )
         val_dataset= ImageNetDataset(
             root="data/",
             split="val",
             # transform=transforms.Compose([transforms.ToTensor(), transforms.Resize([64, 64])])
             transform=ResNet18_Weights.IMAGENET1K_V1.transforms()
-
-
         )
+    elif dataset == "IMAGENET_REGNET":
+        train_dataset = ImageNetDataset(
+            root="/kaggle/input/imagenet-object-localization-challenge/ILSVRC/Data/CLS-LOC/",
+            split="train",
+            # transform=transforms.Compose([transforms.ToTensor(), transforms.Resize([64, 64])]),
+            transform=RegNet_Y_400MF_Weights.IMAGENET1K_V1.transforms()
+        )
+        val_dataset= ImageNetDataset(
+            root="data/",
+            split="val",
+            # transform=transforms.Compose([transforms.ToTensor(), transforms.Resize([64, 64])])
+            transform=RegNet_Y_400MF_Weights.IMAGENET1K_V1.transforms()
+        )
+
     elif dataset == "CIFAR10":
         train_dataset = datasets.CIFAR10(root="cifar_train", 
                                          train=True, 
