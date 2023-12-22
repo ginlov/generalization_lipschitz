@@ -64,9 +64,11 @@ def cal_g_function(args):
             "three": []
         }
         for _ in range(10):
+            print(f"Start {_} time")
             centroids = select_partition_centroid(num_cluster, valid_dataset)
             train_indices = assign_partition(train_dataset, centroids)
             TD = torch.unique(train_indices).shape[0]
+            print(f"{_} time almost done")
             for key, sigma_value in sigma.items():
                 g_value = C * ((math.sqrt(2)+1)*math.sqrt(TD * math.log(2*num_cluster/sigma_value)/num_items) + 2*TD*math.log(2*num_cluster/sigma_value)/num_items)
                 g_temp_values[key].append(g_value)
