@@ -74,6 +74,8 @@ def cal_g_function(args):
                 g_temp_values[key].append(g_value)
         for key in g_temp_values.keys():
             temp = torch.tensor(g_temp_values[key])
+            with open("g_function.txt", "a+") as f:
+                f.write(f"Num cluster {num_cluster} sigma {sigma[key]}, values {torch.mean(torch.Tensor(temp)).item()}+-{torch.var(torch.Tensor(temp)).item()}\n")
             print(f"Num cluster {num_cluster} sigma {sigma[key]}, values {torch.mean(torch.Tensor(temp)).item()}+-{torch.var(torch.Tensor(temp)).item()}")
 
 if __name__ == "__main__":
