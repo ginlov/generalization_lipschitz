@@ -63,7 +63,7 @@ def cal_g_function(args):
             "two": [],
             "three": []
         }
-        for _ in range(10):
+        for _ in range(5):
             print(f"Start {_} time")
             centroids = select_partition_centroid(num_cluster, valid_dataset)
             train_indices = assign_partition(train_dataset, centroids)
