@@ -1,6 +1,7 @@
 from torch.utils import data
 from torch import Tensor
 from typing import List
+from tqdm import tqdm
 
 import torch
 import random
@@ -41,15 +42,16 @@ def assign_partition(
     ):
     data_loader = data.DataLoader(
         test_dataset, 
-        batch_size=len(test_dataset), 
+        batch_size=512,
         shuffle=False)
-    for batch in data_loader:
+    list_of_indices = []
+    for batch in tqdm(data_loader):
         features_data = batch[0]
-
-    batch, _, __, ___ = features_data.shape
-    distance = torch.cdist(features_data.reshape(batch, -1), centroids, p=2)
-    cluster_indices = torch.argmin(distance, dim=1)
-    return cluster_indices
+        batch_size, _, __, ___ = features_data.shape
+        distance = torch.cdist(features_data.reshape(batch_size, -1), centroids, p=2)
+        cluster_indices = torch.argmin(distance, dim=1)
+        list_of_indices.append(cluster_indices)
+    return torch.concat(list_of_indices)
 
 def calculate_robustness(
     model: torch.nn.Module,
