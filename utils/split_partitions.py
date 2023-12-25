@@ -45,12 +45,16 @@ def assign_partition(
         batch_size=512,
         shuffle=False)
     list_of_indices = []
-    for batch in tqdm(data_loader):
+    num_of_batch = len(data_loader)
+    for id_, batch in tqdm(enumerate(data_loader)):
         features_data = batch[0]
         batch_size, _, __, ___ = features_data.shape
         distance = torch.cdist(features_data.reshape(batch_size, -1), centroids, p=2)
         cluster_indices = torch.argmin(distance, dim=1)
         list_of_indices.append(cluster_indices)
+        if id_ == num_of_batch // 2:
+            break
+    torch.save(torch.concat(list_of_indices).detach().cpu(), "partition.pth")
     return torch.concat(list_of_indices)
 
 def calculate_robustness(
