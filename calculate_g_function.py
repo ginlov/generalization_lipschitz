@@ -115,6 +115,7 @@ def cal_g_function(args):
                                                 num_items=num_items)
 
             print(f"the rest of theorem 5 {the_rest.item()}")
+            print(list_of_a)
             ## Calculate g function
             for key, sigma_value in sigma.items():
                 g_value = cal_g3(k=num_cluster, sigma=sigma_value, total_num_items=num_items, cluster_num_item = list_of_num_item, list_of_a = list_of_a, TS=TD)
