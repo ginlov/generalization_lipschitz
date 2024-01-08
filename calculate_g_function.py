@@ -118,6 +118,7 @@ def cal_g_function(args):
             print(list_of_a)
             ## Calculate g function
             for key, sigma_value in sigma.items():
+                print(num_items)
                 g_value = cal_g3(k=num_cluster, sigma=sigma_value, total_num_items=num_items, cluster_num_item = list_of_num_item, list_of_a = list_of_a, TS=TD)
 
                 g_temp_values[key].append(g_value.item())
