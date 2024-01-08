@@ -80,7 +80,6 @@ def cal_g_function(args):
     print("Train loss by L1 loss: {}".format(torch.mean(train_loss).item()))
 
     for num_cluster in num_clusters:
-        print("ok")
         g_temp_values = {
             "one": [],
             "two": [],
@@ -90,8 +89,6 @@ def cal_g_function(args):
         list_of_a = []
         list_of_local_loss = []
         for _ in range(1):
-            print(f"Start {_} time")
-
             ## Asign centroids to validation dataset
             centroids = select_partition_centroid(num_cluster, valid_dataset)
             train_indices = assign_partition(train_dataset, centroids)
@@ -111,8 +108,6 @@ def cal_g_function(args):
             ## Count number of clusters have items
             TD = unique_ids.shape[0]
 
-            print(f"{_} time almost done")
-
             ## Calculate the rest of theorem the_rest_of_theorem_five
             the_rest = the_rest_of_theorem_five(list_of_local_loss=list_of_local_loss,
                                                 list_of_a = list_of_a,
@@ -129,6 +124,7 @@ def cal_g_function(args):
         ## Print out results
         for key in g_temp_values.keys():
             temp = torch.tensor(g_temp_values[key])
+            print(temp)
             print(f"Num cluster {num_cluster} sigma {sigma[key]}, values {torch.mean(torch.Tensor(temp)).item()}+-{torch.var(torch.Tensor(temp)).item()}")
 
 if __name__ == "__main__":
