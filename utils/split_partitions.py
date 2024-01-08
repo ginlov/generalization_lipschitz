@@ -52,7 +52,6 @@ def assign_partition(
         distance = torch.cdist(features_data.reshape(batch_size, -1), centroids, p=2)
         cluster_indices = torch.argmin(distance, dim=1)
         list_of_indices.append(cluster_indices)
-        torch.save(torch.concat(list_of_indices).detach().cpu(), "partition.pth")
     return torch.concat(list_of_indices)
 
 def calculate_robustness(
