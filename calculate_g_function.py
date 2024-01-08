@@ -93,6 +93,8 @@ def cal_g_function(args):
             
             unique_ids = torch.unique(train_indices)
             for each in unique_ids:
+                print(each.shape)
+                print(train_indices.shape)
                 cluster_loss = train_loss[train_indices == each]
                 cluster_valid_loss = valid_loss[valid_indices == each]
                 list_of_num_item.append(cluster_loss.shape[0])
