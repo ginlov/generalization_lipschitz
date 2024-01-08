@@ -47,8 +47,6 @@ def assign_partition(
     list_of_indices = []
     num_of_batch = len(data_loader)
     for id_, batch in tqdm(enumerate(data_loader)):
-        if id_ <= num_of_batch // 2:
-            continue
         features_data = batch[0]
         batch_size, _, __, ___ = features_data.shape
         distance = torch.cdist(features_data.reshape(batch_size, -1), centroids, p=2)
