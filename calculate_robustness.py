@@ -7,7 +7,7 @@ import torch
 import argparse
 import numpy as np
 
-num_clusters =  [5000, 10000, 50000]
+num_clusters =  [100, 1000, 5000, 10000]
 
 def cal_robustness(args):
     model = create_model_from_config(args)
