@@ -16,8 +16,14 @@ sigma = {
 
 def cal_g3(k, sigma, total_num_items, cluster_num_item, list_of_a, TS):
     a0 = max(list_of_a)
-    g3_first = torch.sqrt(torch.log(2*k/sigma)) / total_num_items * torch.sum(torch.sqrt(torch.tensor(cluster_num_item))*(a0 + torch.sqrt(torch.tensor(2))*torch.tensor(list_of_a)))
-    g3_second = 2*torch.log(2*k / sigma) / total_num_items* (a0 * TS+ torch.sum(torch.tensor(list_of_a)))
+    k = torch.tensor(k)
+    sigma = torch.tensor(sigma)
+    total_num_items = torch.tensor(total_num_items)
+    cluster_num_item = torch.tensor(cluster_num_item)
+    list_of_a = torch.tensor(list_of_a)
+    TS = torch.tensor(TS)
+    g3_first = torch.sqrt(torch.log(2*k/sigma)) / total_num_items * torch.sum(torch.sqrt(cluster_num_item)*(a0 + torch.sqrt(torch.tensor(2))*list_of_a))
+    g3_second = 2*torch.log(2*k / sigma) / total_num_items * (a0 * TS + torch.sum(list_of_a))
     return g3_first + g3_second
 
 def the_rest_of_theorem_five(list_of_a, list_of_local_loss, list_of_num_item, num_items):
