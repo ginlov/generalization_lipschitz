@@ -15,7 +15,7 @@ import wandb
 from utils.utils import load_dataset
 
 
-def train(model, dataset, log_file_name="", log_folder="log", clamp_value=-1, from_checkpoint=False, epoch=20, learning_rate=0.01, config_weight_decay=1e-4):
+def train(model, dataset, log_file_name="", log_folder="log", clamp_value=-1, from_checkpoint=False, epoch=20, learning_rate=0.01, config_weight_decay=1e-4, config_optimizer="sgd"):
     ##############################
     ###### Settings ##############
     ##############################
@@ -57,9 +57,20 @@ def train(model, dataset, log_file_name="", log_folder="log", clamp_value=-1, fr
     device = "cuda" if torch.cuda.is_available() else "cpu"
     model.to(device)
     loss_fn = nn.CrossEntropyLoss().to(device)
-    optimizer = torch.optim.SGD(model.parameters(), lr,
+    if config_optimizer == "sgd":
+        optimizer = torch.optim.SGD(model.parameters(), lr,
                                 momentum=momentum,
                                 weight_decay=weight_decay)
+    elif config_optimizer == "adam":
+        optimizer = torch.optim.Adam(
+            model.parameters(), lr=lr,
+            weight_decay=weight_decay
+        )
+    elif config_optimizer == "adamw":
+        optimizer = torch.optim.AdamW(
+            model.parameters(), lr=lr,
+            weight_decay=weight_decay
+        )
     scheduler = torch.optim.lr_scheduler.StepLR(optimizer, step_size=30, gamma=0.1)
     logger.info("Start training")
     # from_checkpoint = False

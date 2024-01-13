@@ -29,8 +29,9 @@ def start_train(
         "from_checkpoint": args.from_checkpoint,
         "log_folder": log_folder,
         "epoch": args.num_epoch,
-        "lr": args.learning_rate,
-        "weight_decay": args.weight_decay
+        "learning_rate": args.learning_rate,
+        "config_weight_decay": args.weight_decay,
+        "config_optimizer": args.optimizer
     }
 
     train(**training_config)

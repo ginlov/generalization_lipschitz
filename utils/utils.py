@@ -111,7 +111,8 @@ def default_config():
         "from_checkpoint": False,
         "num_epoch": 20,
         "learning_rate": 0.01,
-        "weight_decay": 1e-4
+        "weight_decay": 1e-4,
+        "optimizer": "sgd"
     }
 
 def add_dict_to_argparser(
