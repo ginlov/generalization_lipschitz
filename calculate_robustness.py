@@ -54,7 +54,9 @@ def cal_robustness(args):
     sum_of_local_robustness = []
 
     for num_cluster in num_clusters:
-        temp_robustness = []
+        total_loss_subtraction = torch.abs(torch.cdist(loss.reshape(-1, 1), train_loss.reshape(-1, 1), p=1))
+        a_robustness = torch.max(total_loss_subtraction.reshape(-1)).item()
+
         temp_sum_of_local_robustness = []
 
         for _ in range(10):
@@ -64,7 +66,7 @@ def cal_robustness(args):
             max_index = torch.max(test_indices)
             train_cluster_shape = []
             local_robustness = []
-
+            
             for i in range(max_index + 1):
                 train_loss_values = train_loss[(train_indices==i).nonzero()]
                 loss_values = loss[(test_indices==i).nonzero()]
@@ -78,22 +80,14 @@ def cal_robustness(args):
                 a_local_robustness = torch.max(loss_subtraction.reshape(-1)).item()
                 local_robustness.append(a_local_robustness)
 
-            # Calculat robustness
-            print(f"Total loss shape {loss.shape}, {train_loss.shape}")
-            total_loss_subtraction = torch.abs(torch.cdist(loss.reshape(-1, 1), train_loss.reshape(-1, 1), p=1))
-            a_robustness = torch.max(total_loss_subtraction.reshape(-1)).item()
-            temp_robustness.append(a_robustness)
-
-
             a_sum_of_local_robustness = np.sum(np.array(train_cluster_shape) * np.array(local_robustness)) / np.sum(train_cluster_shape)
-            temp_robustness.append(robustness)
             temp_sum_of_local_robustness.append(a_sum_of_local_robustness)
 
-        robustness.append(f"{torch.mean(torch.Tensor(temp_robustness)).item()}+-{torch.var(torch.Tensor(temp_robustness)).item()}")
+        robustness.append(f"{a_robustness}")
         sum_of_local_robustness.append(f"{torch.mean(torch.Tensor(temp_sum_of_local_robustness)).item()}+-{torch.var(torch.Tensor(temp_sum_of_local_robustness)).item()}")
         wandb.log({
             "num_cluster": num_cluster,
-            "robustness": torch.mean(torch.Tensor(temp_robustness)).item(),
+            "robustness": a_robustness,
             "local_robustness": torch.mean(torch.Tensor(temp_sum_of_local_robustness)).item()
         })
 
