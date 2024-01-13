@@ -10,6 +10,7 @@ import time
 import shutil
 import numpy as np
 import os
+import wandb
 
 from utils.utils import load_dataset
 
@@ -81,6 +82,16 @@ def train(model, dataset, log_file_name="", log_folder="log", clamp_value=-1, fr
         train_loss, train_acc1, train_acc5 = train_epoch(model, train_loader, optimizer, loss_fn, device, log_file_name, log_folder, i, clamp_value=clamp_value)
 
         loss, acc1, acc5 = validate_epoch(model, val_loader, loss_fn, device, log_file_name, i)
+
+        wandb.log({
+            "epoch": i,
+            "train_loss": train_loss,
+            "train_acc1": train_acc1,
+            "train_acc5": train_acc5,
+            "valid_loss": loss,
+            "acc1": acc1,
+            "acc5": acc5
+        })
 
         scheduler.step() 
 
@@ -294,6 +305,7 @@ class ProgressMeter(object):
         print(' '.join(entries))
         with open(self.log_file, "a+") as f:
             f.write(" ".join(entries) + "\n")
+        wandb.log
 
     def _get_batch_fmtstr(self, num_batches):
         num_digits = len(str(num_batches // 1))

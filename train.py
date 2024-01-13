@@ -1,8 +1,8 @@
 from utils.train_base import train
 from utils.utils import default_config, add_dict_to_argparser, create_model_from_config
+from utils.wandb_utils import wandb_init, wandb_end
 
 import argparse
-
 
 def start_train(
         args: argparse.Namespace,
@@ -10,6 +10,9 @@ def start_train(
     # create model
     model = create_model_from_config(args)
     dataset = args.dataset
+    wandb_init(
+        config=args
+    )
 
     # training
     if args.model_type == 0:
@@ -29,6 +32,8 @@ def start_train(
     }
 
     train(**training_config)
+
+    wandb_end()
 
 
 if __name__ == "__main__":

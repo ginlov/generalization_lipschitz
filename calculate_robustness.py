@@ -2,14 +2,17 @@ from utils.utils import default_config, add_dict_to_argparser, create_model_from
 from utils.split_partitions import *
 from torch.utils import data
 from torchvision import transforms
+from utils.wandb_utils import wandb_init, wandb_end
 
 import torch
 import argparse
 import numpy as np
+import wandb
 
 num_clusters =  [100, 1000, 5000, 10000]
 
 def cal_robustness(args):
+    wandb_init(args)
     model = create_model_from_config(args)
     if args.model not in ["resnet18_imagenet", "regnet_imagenet"]:
         model_checkpoint = torch.load(args.model_checkpoint, map_location="cpu")
@@ -85,8 +88,15 @@ def cal_robustness(args):
 
         robustness.append(f"{torch.mean(torch.Tensor(temp_robustness)).item()}+-{torch.var(torch.Tensor(temp_robustness)).item()}")
         sum_of_local_robustness.append(f"{torch.mean(torch.Tensor(temp_sum_of_local_robustness)).item()}+-{torch.var(torch.Tensor(temp_sum_of_local_robustness)).item()}")
+        wandb.log({
+            "num_cluster": num_cluster,
+            "robustness": torch.mean(torch.Tensor(temp_robustness)).item(),
+            "local_robustness": torch.mean(torch.Tensor(temp_sum_of_local_robustness)).item()
+        })
+
     print(f"Robustness {robustness}")
     print(f"Summation of local robustness {sum_of_local_robustness}")
+    wandb_end()
  
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()

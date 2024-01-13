@@ -2,10 +2,12 @@ from utils.utils import default_config, add_dict_to_argparser, create_model_from
 from utils.split_partitions import *
 from torch.utils import data
 from torchvision import transforms
+from utils.wandb_utils import wandb_init, wandb_end
 
 import torch
 import argparse
 import math
+import wandb
 
 num_clusters = [100, 1000, 5000, 10000]
 sigma = {
@@ -31,6 +33,7 @@ def the_rest_of_theorem_five(list_of_a, list_of_local_loss, list_of_num_item, nu
     
 
 def cal_g_function(args):
+    wandb_init(args)
     model = create_model_from_config(args)
     if args.model not in ["resnet18_imagenet", "regnet_imagenet"]:
         model_checkpoint = torch.load(args.model_checkpoint, map_location="cpu")
@@ -78,7 +81,7 @@ def cal_g_function(args):
 
     # num_items = train_loss.shape[0]
     print("Averagte train loss by L1 loss: {}".format(torch.mean(train_loss).item()))
-
+    
     for num_cluster in num_clusters:
         g_temp_values = {
             "one": [],
@@ -117,16 +120,26 @@ def cal_g_function(args):
                                                 num_items=num_items)
 
             print(f"the rest of theorem 5 {the_rest_theorem_five.item()}")
+
             ## Calculate g function
             for key, sigma_value in sigma.items():
                 g_value = cal_g3(k=num_cluster, sigma=sigma_value, total_num_items=num_items, cluster_num_item = list_of_num_item, list_of_a = list_of_a, TS=TD)
 
                 g_temp_values[key].append(g_value.item())
 
-        ## Print out results
+        log_dict = {
+            "Average L1 loss": torch.mean(train_loss).item(),
+            "Num_cluster": num_cluster,
+            "The rest of theorem 5": the_rest_theorem_five.item()
+        }
+
+        ## Log out results
         for key in g_temp_values.keys():
             temp = torch.tensor(g_temp_values[key])
             print(f"Num cluster {num_cluster} sigma {sigma[key]}, values {torch.mean(torch.Tensor(temp)).item()}+-{torch.var(torch.Tensor(temp)).item()}")
+            log_dict[f'sigma {sigma[key]}'] = torch.mean(torch.Tensor(temp)).item()
+        wandb.log(log_dict)
+        wandb_end()
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
