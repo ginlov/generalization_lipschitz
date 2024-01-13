@@ -12,7 +12,11 @@ import wandb
 num_clusters =  [100, 1000, 5000, 10000]
 
 def cal_robustness(args):
-    wandb_init(args)
+    name = [str(value) for value in vars(args).values()]
+    wandb_init(
+        args,
+        name="robustness_{}".format("_".join(name))
+    )
     model = create_model_from_config(args)
     if args.model not in ["resnet18_imagenet", "regnet_imagenet"]:
         model_checkpoint = torch.load(args.model_checkpoint, map_location="cpu")

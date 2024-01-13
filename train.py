@@ -10,8 +10,10 @@ def start_train(
     # create model
     model = create_model_from_config(args)
     dataset = args.dataset
+    name = [str(value) for value in vars(args).values()]
     wandb_init(
-        config=args
+        config=args,
+        name="train_{}".format("_".join(name))
     )
 
     # training
