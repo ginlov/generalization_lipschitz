@@ -73,8 +73,6 @@ def cal_robustness(args):
             
                 if loss_values.shape[0] < 1 or train_loss_values.shape[0] < 1:
                     continue
-                if i == 0:
-                    print(f"Cluster shape {train_loss_values.shape}, {loss_values.shape}")
                 train_cluster_shape.append(train_loss_values.shape[0])
                 loss_subtraction = torch.abs(torch.cdist(loss_values, train_loss_values, p=1))
                 a_local_robustness = torch.max(loss_subtraction.reshape(-1)).item()
