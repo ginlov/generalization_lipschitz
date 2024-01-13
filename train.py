@@ -28,7 +28,9 @@ def start_train(
         "clamp_value": args.clamp_value,
         "from_checkpoint": args.from_checkpoint,
         "log_folder": log_folder,
-        "epoch": args.num_epoch
+        "epoch": args.num_epoch,
+        "lr": args.learning_rate,
+        "weight_decay": args.weight_decay
     }
 
     train(**training_config)

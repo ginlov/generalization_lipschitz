@@ -7,7 +7,7 @@ from torchvision.datasets.imagenet import load_meta_file
 from torchvision.transforms.transforms import ToTensor
 from utils.constant import MODEL_CONFIG, MODEL_MAP
 from torchvision import transforms, datasets
-from torchvision.models import resnet18, ResNet18_Weights, regnet_y_400mf, RegNet_Y_400MF_Weights
+from torchvision.models import resnet18, ResNet18_Weights, regnet_y_400mf, RegNet_Y_400MF_Weights, shufflenet_v2_x1_0, shufflenet_v2_x1_5, shufflenet_v2_x2_0
 from PIL import Image
 
 import argparse
@@ -109,7 +109,9 @@ def default_config():
         "clamp_value": -1.0,
         "norm_type": "batch",
         "from_checkpoint": False,
-        "num_epoch": 20
+        "num_epoch": 20,
+        "learning_rate": 0.01,
+        "weight_decay": 1e-4
     }
 
 def add_dict_to_argparser(
@@ -129,6 +131,12 @@ def create_model_from_config(
     elif args.model == "regnet_imagenet":
         model = regnet_y_400mf(RegNet_Y_400MF_Weights.IMAGENET1K_V1)
         return model
+    elif args.model == "shufflenet1":
+        return shufflenet_v2_x1_0()
+    elif args.model == "shufflenet2":
+        return shufflenet_v2_x1_5()
+    elif args.model == "shufflenet3":
+        return shufflenet_v2_x2_0()
     config = MODEL_CONFIG[args.model]
     if args.model_type == 2:
         if args.norm_type == "BN":

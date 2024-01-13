@@ -15,7 +15,7 @@ import wandb
 from utils.utils import load_dataset
 
 
-def train(model, dataset, log_file_name="", log_folder="log", clamp_value=-1, from_checkpoint=False, epoch=20):
+def train(model, dataset, log_file_name="", log_folder="log", clamp_value=-1, from_checkpoint=False, epoch=20, learning_rate=0.01, config_weight_decay=1e-4):
     ##############################
     ###### Settings ##############
     ##############################
@@ -29,10 +29,10 @@ def train(model, dataset, log_file_name="", log_folder="log", clamp_value=-1, fr
     patient = 0
     batch_size = 64
     workers = 5
-    lr = 0.01
+    lr = learning_rate
     # num_epoch = 1
     num_epoch = epoch 
-    weight_decay = 1e-4
+    weight_decay = config_weight_decay
     momentum = 0.9
     max_patient = 3
 
