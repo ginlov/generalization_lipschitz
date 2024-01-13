@@ -30,7 +30,6 @@ def cal_robustness(args):
     train_dataloader = data.DataLoader(train_dataset, batch_size=128, shuffle=False)
     val_dataloader = data.DataLoader(val_dataset, batch_size=128, shuffle=False)
 
-    # loss_func = torch.nn.CrossEntropyLoss(reduction='none')
     loss_func = loss_l1
 
     loss = []
@@ -67,7 +66,7 @@ def cal_robustness(args):
             local_robustness = []
             
             # Calculat robustness
-            total_loss_subtraction = torch.abs(torch.cdist(loss, train_loss, p=1))
+            total_loss_subtraction = torch.abs(torch.cdist(loss.reshape(-1, 1), train_loss.reshape(-1, 1), p=1))
             a_robustness = torch.max(total_loss_subtraction.reshape(-1)).item()
             temp_robustness.append(a_robustness)
 

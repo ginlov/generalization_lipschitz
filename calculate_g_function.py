@@ -139,7 +139,7 @@ def cal_g_function(args):
             print(f"Num cluster {num_cluster} sigma {sigma[key]}, values {torch.mean(torch.Tensor(temp)).item()}+-{torch.var(torch.Tensor(temp)).item()}")
             log_dict[f'sigma {sigma[key]}'] = torch.mean(torch.Tensor(temp)).item()
         wandb.log(log_dict)
-        wandb_end()
+    wandb_end()
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
