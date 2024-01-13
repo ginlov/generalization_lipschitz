@@ -68,8 +68,8 @@ def cal_g_function(args):
         for batch in valid_dataloader:
             output = model(batch[0].to(device))
             valid_loss.append(torch.Tensor(loss_func(output, batch[1].to(device))).detach().cpu())
-    train_loss = torch.concatenate(train_loss)
-    valid_loss = torch.concatenate(valid_loss)
+    train_loss = torch.concat(train_loss)
+    valid_loss = torch.concat(valid_loss)
 
     ## Calculate C - maximum value of the loss
     C_temp = torch.max(valid_loss).item()
@@ -77,7 +77,7 @@ def cal_g_function(args):
     C = max(C_temp, C)
 
     # num_items = train_loss.shape[0]
-    print("Train loss by L1 loss: {}".format(torch.mean(train_loss).item()))
+    print("Averagte train loss by L1 loss: {}".format(torch.mean(train_loss).item()))
 
     for num_cluster in num_clusters:
         g_temp_values = {
@@ -86,7 +86,9 @@ def cal_g_function(args):
             "three": []
         }
         list_of_num_item = []
+        # a is the average loss values (inside a partition) including both training and testing data
         list_of_a = []
+        # local loss is the average loss values excluding testing data
         list_of_local_loss = []
         for _ in range(1):
             ## Asign centroids to validation dataset
@@ -101,7 +103,7 @@ def cal_g_function(args):
                 list_of_num_item.append(cluster_loss.shape[0])
                 list_of_local_loss.append(cluster_loss.mean().item())
                 if cluster_valid_loss.shape[0] != 0:
-                    list_of_a.append(torch.concatenate([cluster_loss, cluster_valid_loss], dim=0).mean().item())
+                    list_of_a.append(torch.concat([cluster_loss, cluster_valid_loss], dim=0).mean().item())
                 else:
                     list_of_a.append(cluster_loss.mean().item())
 
@@ -109,12 +111,12 @@ def cal_g_function(args):
             TD = unique_ids.shape[0]
 
             ## Calculate the rest of theorem the_rest_of_theorem_five
-            the_rest = the_rest_of_theorem_five(list_of_local_loss=list_of_local_loss,
+            the_rest_theorem_five = the_rest_of_theorem_five(list_of_local_loss=list_of_local_loss,
                                                 list_of_a = list_of_a,
                                                 list_of_num_item=list_of_num_item,
                                                 num_items=num_items)
 
-            print(f"the rest of theorem 5 {the_rest.item()}")
+            print(f"the rest of theorem 5 {the_rest_theorem_five.item()}")
             ## Calculate g function
             for key, sigma_value in sigma.items():
                 g_value = cal_g3(k=num_cluster, sigma=sigma_value, total_num_items=num_items, cluster_num_item = list_of_num_item, list_of_a = list_of_a, TS=TD)
@@ -124,7 +126,6 @@ def cal_g_function(args):
         ## Print out results
         for key in g_temp_values.keys():
             temp = torch.tensor(g_temp_values[key])
-            print(temp)
             print(f"Num cluster {num_cluster} sigma {sigma[key]}, values {torch.mean(torch.Tensor(temp)).item()}+-{torch.var(torch.Tensor(temp)).item()}")
 
 if __name__ == "__main__":

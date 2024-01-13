@@ -45,17 +45,15 @@ def cal_robustness(args):
         for batch in train_dataloader:
             output = model(batch[0].to(device))
             train_loss.append(torch.Tensor(loss_func(output, batch[1].to(device))).detach().cpu())
-    loss = torch.concatenate(loss)
-    train_loss = torch.concatenate(train_loss)
+    loss = torch.concat(loss)
+    train_loss = torch.concat(train_loss)
 
-    epsilon_list = []
-    epsilon_bound_2_list = []
-    epsilon_bound_3_list = []
+    robustness = []
+    sum_of_local_robustness = []
 
     for num_cluster in num_clusters:
-        temp_epsilon_list = []
-        temp_epsilon_bound_2_list = []
-        temp_epsilon_bound_3_list = []
+        temp_robustness = []
+        temp_sum_of_local_robustness = []
 
         for _ in range(10):
             centroids = select_partition_centroid(num_cluster, val_dataset)
@@ -63,9 +61,12 @@ def cal_robustness(args):
             test_indices = assign_partition(val_dataset, centroids)
             max_index = torch.max(test_indices)
             train_cluster_shape = []
-            cluster_epsilon_list = []
-            bound_3_list = []
-            epsilon = 0.0
+            local_robustness = []
+            
+            # Calculat robustness
+            total_loss_subtraction = torch.abs(torch.cdist(loss, train_loss, p=1))
+            a_robustness = torch.max(total_loss_subtraction.reshape(-1)).item()
+            temp_robustness.append(a_robustness)
 
             for i in range(max_index + 1):
                 train_loss_values = train_loss[(train_indices==i).nonzero()]
@@ -75,24 +76,17 @@ def cal_robustness(args):
                     continue
                 train_cluster_shape.append(train_loss_values.shape[0])
                 loss_subtraction = torch.abs(torch.cdist(loss_values, train_loss_values, p=1))
-                cluster_epsilon = torch.max(loss_subtraction.reshape(-1)).item()
-                cluster_epsilon_list.append(cluster_epsilon)
-                epsilon = max(epsilon, cluster_epsilon)
-                bound_3 = max(torch.max(train_loss_values).item(), torch.max(loss_values).item()) - torch.mean(train_loss_values).item()
-                bound_3_list.append(bound_3)
+                a_local_robustness = torch.max(loss_subtraction.reshape(-1)).item()
+                local_robustness.append(a_local_robustness)
 
-            epsilon_bound_2 = np.sum(np.array(train_cluster_shape) * np.array(cluster_epsilon_list)) / np.sum(train_cluster_shape)
-            epsilon_bound_3 = np.sum(np.array(train_cluster_shape) * np.array(bound_3_list)) / np.sum(train_cluster_shape)
-            temp_epsilon_bound_2_list.append(epsilon_bound_2)
-            temp_epsilon_bound_3_list.append(epsilon_bound_3)
-            temp_epsilon_list.append(epsilon)
+            a_sum_of_local_robustness = np.sum(np.array(train_cluster_shape) * np.array(local_robustness)) / np.sum(train_cluster_shape)
+            temp_robustness.append(robustness)
+            temp_sum_of_local_robustness.append(a_sum_of_local_robustness)
 
-        epsilon_list.append(f"{torch.mean(torch.Tensor(temp_epsilon_list)).item()}+-{torch.var(torch.Tensor(temp_epsilon_list)).item()}")
-        epsilon_bound_2_list.append(f"{torch.mean(torch.Tensor(temp_epsilon_bound_2_list)).item()}+-{torch.var(torch.Tensor(temp_epsilon_bound_2_list)).item()}")
-        epsilon_bound_3_list.append(f"{torch.mean(torch.Tensor(temp_epsilon_bound_3_list)).item()}+-{torch.var(torch.Tensor(temp_epsilon_bound_3_list)).item()}")
-    print(f"epsilon {epsilon_list}")
-    print(f"epsilon bound 2 {epsilon_bound_2_list}")
-    print(f"epsilon bound 4 {epsilon_bound_3_list}")
+        robustness.append(f"{torch.mean(torch.Tensor(temp_robustness)).item()}+-{torch.var(torch.Tensor(temp_robustness)).item()}")
+        sum_of_local_robustness.append(f"{torch.mean(torch.Tensor(temp_sum_of_local_robustness)).item()}+-{torch.var(torch.Tensor(temp_sum_of_local_robustness)).item()}")
+    print(f"Robustness {robustness}")
+    print(f"Summation of local robustness {sum_of_local_robustness}")
  
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
