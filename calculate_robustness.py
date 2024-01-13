@@ -64,11 +64,6 @@ def cal_robustness(args):
             max_index = torch.max(test_indices)
             train_cluster_shape = []
             local_robustness = []
-            
-            # Calculat robustness
-            total_loss_subtraction = torch.abs(torch.cdist(loss.reshape(-1, 1), train_loss.reshape(-1, 1), p=1))
-            a_robustness = torch.max(total_loss_subtraction.reshape(-1)).item()
-            temp_robustness.append(a_robustness)
 
             for i in range(max_index + 1):
                 train_loss_values = train_loss[(train_indices==i).nonzero()]
@@ -76,10 +71,19 @@ def cal_robustness(args):
             
                 if loss_values.shape[0] < 1 or train_loss_values.shape[0] < 1:
                     continue
+                if i == 0:
+                    print(f"Cluster shape {train_loss_values.shape}, {loss_values.shape}")
                 train_cluster_shape.append(train_loss_values.shape[0])
                 loss_subtraction = torch.abs(torch.cdist(loss_values, train_loss_values, p=1))
                 a_local_robustness = torch.max(loss_subtraction.reshape(-1)).item()
                 local_robustness.append(a_local_robustness)
+
+            # Calculat robustness
+            print(f"Total loss shape {loss.shape}, {train_loss.shape}")
+            total_loss_subtraction = torch.abs(torch.cdist(loss.reshape(-1, 1), train_loss.reshape(-1, 1), p=1))
+            a_robustness = torch.max(total_loss_subtraction.reshape(-1)).item()
+            temp_robustness.append(a_robustness)
+
 
             a_sum_of_local_robustness = np.sum(np.array(train_cluster_shape) * np.array(local_robustness)) / np.sum(train_cluster_shape)
             temp_robustness.append(robustness)
