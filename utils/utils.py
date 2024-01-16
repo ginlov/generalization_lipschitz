@@ -105,9 +105,9 @@ def default_config():
     return {
         "model": "mlp",
         "dataset": "CIFAR10",
-        "model_type": 0,
+        "model_type": 2,
         "clamp_value": -1.0,
-        "norm_type": "batch",
+        "norm_type": "BN",
         "from_checkpoint": False,
         "num_epoch": 20,
         "learning_rate": 0.01,
