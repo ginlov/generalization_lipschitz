@@ -109,6 +109,7 @@ def train(model, dataset, log_file_name="", log_folder="log", clamp_value=-1, fr
         is_best = acc1 > best_acc1
         
         if is_best is False:
+            pass
             patient +=1
             if patient > max_patient:
                 print("-----OUT OF PATIENCE-----")
@@ -136,6 +137,7 @@ def train(model, dataset, log_file_name="", log_folder="log", clamp_value=-1, fr
     print("------END OF TRAINING------")
     print(f"Train data: loss {train_best_loss}, acc1 {train_best_acc1}, acc5 {train_best_acc5}")
     print(f"Valid data: loss {best_loss}, acc1 {best_acc1}, acc5 {best_acc5}")
+    return train_best_loss, train_best_acc1, train_best_acc5, best_loss, best_acc1, best_acc5
 
 
 def train_epoch(model, train_loader, optimizer, loss_fn, device, log_file, log_folder, epoch, clamp_value=-1):
