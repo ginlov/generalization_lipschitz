@@ -192,4 +192,4 @@ if __name__ == "__main__":
     output_df["train_acc"] = [train_best_acc1]*output_df.shape[0]
     output_df["loss"] = [best_loss]*output_df.shape[0]
     output_df["acc"] = [best_acc1]*output_df.shape[0]
-    output_df.to_excel("result.xlsx", index=False)
+    output_df.to_excel(f"{args.model}_{args.dataset}_{args.learning_rate}_{args.optimizer}_{args.weight_decay}.xlsx", index=False)
