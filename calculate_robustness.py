@@ -13,10 +13,10 @@ num_clusters =  [100, 1000, 5000, 10000]
 
 def cal_robustness(args):
     name = [str(value) for value in vars(args).values()]
-    wandb_init(
-        args,
-        name="robustness_{}".format("_".join(name))
-    )
+    # wandb_init(
+    #     args,
+    #     name="robustness_{}".format("_".join(name))
+    # )
     model = create_model_from_config(args)
     if args.model not in ["resnet18_imagenet", "regnet_imagenet"]:
         model_checkpoint = torch.load(args.model_checkpoint, map_location="cpu")
@@ -87,15 +87,15 @@ def cal_robustness(args):
 
         robustness.append(f"{a_robustness}")
         sum_of_local_robustness.append(f"{torch.mean(torch.Tensor(temp_sum_of_local_robustness)).item()}+-{torch.var(torch.Tensor(temp_sum_of_local_robustness)).item()}")
-        wandb.log({
-            "num_cluster": num_cluster,
-            "robustness": a_robustness,
-            "local_robustness": torch.mean(torch.Tensor(temp_sum_of_local_robustness)).item()
-        })
+        # wandb.log({
+        #     "num_cluster": num_cluster,
+        #     "robustness": a_robustness,
+        #     "local_robustness": torch.mean(torch.Tensor(temp_sum_of_local_robustness)).item()
+        # })
 
     print(f"Robustness {robustness}")
     print(f"Summation of local robustness {sum_of_local_robustness}")
-    wandb_end()
+    # wandb_end()
  
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()

@@ -11,10 +11,10 @@ def start_train(
     model = create_model_from_config(args)
     dataset = args.dataset
     name = [str(value) for value in vars(args).values()]
-    wandb_init(
-        config=args,
-        name="train_{}".format("_".join(name))
-    )
+    # wandb_init(
+    #     config=args,
+    #     name="train_{}".format("_".join(name))
+    # )
 
     # training
     if args.model_type == 0:
@@ -38,7 +38,7 @@ def start_train(
 
     train(**training_config)
 
-    wandb_end()
+    # wandb_end()
 
 
 if __name__ == "__main__":

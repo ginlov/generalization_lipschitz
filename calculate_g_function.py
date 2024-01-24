@@ -34,7 +34,7 @@ def the_rest_of_theorem_five(list_of_a, list_of_local_loss, list_of_num_item, nu
 
 def cal_g_function(args):
     name = [str(value) for value in vars(args).values()]
-    wandb_init(args, name="g_function_{}".format("_".join(name)))
+    # wandb_init(args, name="g_function_{}".format("_".join(name)))
     model = create_model_from_config(args)
     if args.model not in ["resnet18_imagenet", "regnet_imagenet"]:
         model_checkpoint = torch.load(args.model_checkpoint, map_location="cpu")
@@ -139,8 +139,8 @@ def cal_g_function(args):
             temp = torch.tensor(g_temp_values[key])
             print(f"Num cluster {num_cluster} sigma {sigma[key]}, values {torch.mean(torch.Tensor(temp)).item()}+-{torch.var(torch.Tensor(temp)).item()}")
             log_dict[f'sigma {sigma[key]}'] = torch.mean(torch.Tensor(temp)).item()
-        wandb.log(log_dict)
-    wandb_end()
+        # wandb.log(log_dict)
+    # wandb_end()
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
