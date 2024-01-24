@@ -107,7 +107,7 @@ def cal_g(args):
 
     list_of_rows = []
     for num_cluster in num_cluster_list:
-        five_times_g_values = []
+        five_times_g_values = [[], [], []]
         five_times_robustness = []
         five_times_theorem_five = []
         five_times_local_robustness = []
