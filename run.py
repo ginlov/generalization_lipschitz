@@ -182,7 +182,8 @@ def cal_g(args):
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
     add_dict_to_argparser(parser, default_config())
-    
+    parser.add_argument("--model_checkpoint", type=str, default="model_best.pth.tar")
+
     args = parser.parse_args()
 
     train_best_loss, train_best_acc1, _, best_loss, best_acc1, __= start_train(args)
