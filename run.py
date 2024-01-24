@@ -189,8 +189,8 @@ if __name__ == "__main__":
     train_best_loss, train_best_acc1, _, best_loss, best_acc1, __= start_train(args)
 
     output_df = cal_g(args)
-    output_df["train_loss"] = [train_best_loss]*output_df.shape[0]
-    output_df["train_acc"] = [train_best_acc1]*output_df.shape[0]
-    output_df["loss"] = [best_loss]*output_df.shape[0]
-    output_df["acc"] = [best_acc1]*output_df.shape[0]
+    output_df["train_loss"] = [train_best_loss.detach().cpu().item()]*output_df.shape[0]
+    output_df["train_acc"] = [train_best_acc1.detach().cpu().item()]*output_df.shape[0]
+    output_df["loss"] = [best_loss.detach().cpu().item()]*output_df.shape[0]
+    output_df["acc"] = [best_acc1.detach().cpu().item()]*output_df.shape[0]
     output_df.to_excel(f"{args.model}_{args.dataset}_{args.learning_rate}_{args.optimizer}_{args.weight_decay}.xlsx", index=False)
