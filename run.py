@@ -162,19 +162,19 @@ def cal_g(args):
             "weight_decay": args.weight_decay,
             "loss_l1": torch.mean(train_loss).item(),
             "num_cluster": num_cluster,
-            f"g_value {sigma_list[0]} mean": torch.mean(torch.tensor(five_times_g_values[0])),
-            f"g_value {sigma_list[0]} var": torch.var(torch.tensor(five_times_g_values[0])),
-            f"g_value {sigma_list[1]} mean": torch.mean(torch.tensor(five_times_g_values[1])),
-            f"g_value {sigma_list[1]} var": torch.var(torch.tensor(five_times_g_values[1])),
-            f"g_value {sigma_list[2]} mean": torch.mean(torch.tensor(five_times_g_values[2])),
-            f"g_value {sigma_list[2]} var": torch.var(torch.tensor(five_times_g_values[2])),
+            f"g_value {sigma_list[0]} mean": torch.mean(torch.tensor(five_times_g_values[0])).item(),
+            f"g_value {sigma_list[0]} var": torch.var(torch.tensor(five_times_g_values[0])).item(),
+            f"g_value {sigma_list[1]} mean": torch.mean(torch.tensor(five_times_g_values[1])).item(),
+            f"g_value {sigma_list[1]} var": torch.var(torch.tensor(five_times_g_values[1])).item(),
+            f"g_value {sigma_list[2]} mean": torch.mean(torch.tensor(five_times_g_values[2])).item(),
+            f"g_value {sigma_list[2]} var": torch.var(torch.tensor(five_times_g_values[2])).item(),
 
-            "theorem 3 mean": torch.mean(torch.tensor(five_times_robustness)),
-            "theorem 3 variance": torch.var(torch.tensor(five_times_robustness)),
-            "theorem 4 mean": torch.mean(torch.tensor(five_times_local_robustness)),
-            "theorem 4 variance": torch.var(torch.tensor(five_times_local_robustness)),
-            "theorem 5 mean": torch.mean(torch.tensor(five_times_theorem_five)),
-            "theorem 5 variance": torch.var(torch.tensor(five_times_theorem_five))
+            "theorem 3 mean": torch.mean(torch.tensor(five_times_robustness)).item(),
+            "theorem 3 variance": torch.var(torch.tensor(five_times_robustness)).item(),
+            "theorem 4 mean": torch.mean(torch.tensor(five_times_local_robustness)).item(),
+            "theorem 4 variance": torch.var(torch.tensor(five_times_local_robustness)).item(),
+            "theorem 5 mean": torch.mean(torch.tensor(five_times_theorem_five)).item(),
+            "theorem 5 variance": torch.var(torch.tensor(five_times_theorem_five)).item()
         })
 
     return pd.DataFrame(list_of_rows)
