@@ -112,7 +112,7 @@ def cal_g(args):
         five_times_theorem_five = []
         five_times_local_robustness = []
         
-        for _ in range(5):
+        for _ in range(1):
             list_of_num_item = []
             list_of_a = []
             list_of_local_loss = []
@@ -163,18 +163,18 @@ def cal_g(args):
             "loss_l1": torch.mean(train_loss).item(),
             "num_cluster": num_cluster,
             f"g_value {sigma_list[0]} mean": torch.mean(torch.tensor(five_times_g_values[0])).item(),
-            f"g_value {sigma_list[0]} var": torch.var(torch.tensor(five_times_g_values[0])).item(),
+            # f"g_value {sigma_list[0]} var": torch.var(torch.tensor(five_times_g_values[0])).item(),
             f"g_value {sigma_list[1]} mean": torch.mean(torch.tensor(five_times_g_values[1])).item(),
-            f"g_value {sigma_list[1]} var": torch.var(torch.tensor(five_times_g_values[1])).item(),
+            # f"g_value {sigma_list[1]} var": torch.var(torch.tensor(five_times_g_values[1])).item(),
             f"g_value {sigma_list[2]} mean": torch.mean(torch.tensor(five_times_g_values[2])).item(),
-            f"g_value {sigma_list[2]} var": torch.var(torch.tensor(five_times_g_values[2])).item(),
+            # f"g_value {sigma_list[2]} var": torch.var(torch.tensor(five_times_g_values[2])).item(),
 
             "theorem 3 mean": torch.mean(torch.tensor(five_times_robustness)).item(),
-            "theorem 3 variance": torch.var(torch.tensor(five_times_robustness)).item(),
+            # "theorem 3 variance": torch.var(torch.tensor(five_times_robustness)).item(),
             "theorem 4 mean": torch.mean(torch.tensor(five_times_local_robustness)).item(),
-            "theorem 4 variance": torch.var(torch.tensor(five_times_local_robustness)).item(),
+            # "theorem 4 variance": torch.var(torch.tensor(five_times_local_robustness)).item(),
             "theorem 5 mean": torch.mean(torch.tensor(five_times_theorem_five)).item(),
-            "theorem 5 variance": torch.var(torch.tensor(five_times_theorem_five)).item()
+            # "theorem 5 variance": torch.var(torch.tensor(five_times_theorem_five)).item()
         })
 
     return pd.DataFrame(list_of_rows)
@@ -185,12 +185,16 @@ if __name__ == "__main__":
     parser.add_argument("--model_checkpoint", type=str, default="model_best.pth.tar")
 
     args = parser.parse_args()
+    list_of_dfs = []
+    for i in range(5):
+        train_best_loss, train_best_acc1, _, best_loss, best_acc1, __= start_train(args)
 
-    train_best_loss, train_best_acc1, _, best_loss, best_acc1, __= start_train(args)
+        output_df = cal_g(args)
+        output_df["train_loss"] = [train_best_loss]*output_df.shape[0]
+        output_df["train_acc"] = [train_best_acc1.detach().cpu().item()]*output_df.shape[0]
+        output_df["loss"] = [best_loss]*output_df.shape[0]
+        output_df["acc"] = [best_acc1.detach().cpu().item()]*output_df.shape[0]
 
-    output_df = cal_g(args)
-    output_df["train_loss"] = [train_best_loss]*output_df.shape[0]
-    output_df["train_acc"] = [train_best_acc1.detach().cpu().item()]*output_df.shape[0]
-    output_df["loss"] = [best_loss]*output_df.shape[0]
-    output_df["acc"] = [best_acc1.detach().cpu().item()]*output_df.shape[0]
-    output_df.to_excel(f"{args.model}_{args.dataset}_{args.learning_rate}_{args.optimizer}_{args.weight_decay}.xlsx", index=False)
+        list_of_dfs.append(output_df)
+    final_df = pd.concat(list_of_dfs)
+    final_df.to_excel(f"{args.model}_{args.dataset}_{args.learning_rate}_{args.optimizer}_{args.weight_decay}.xlsx", index=False)
