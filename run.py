@@ -186,7 +186,7 @@ if __name__ == "__main__":
 
     args = parser.parse_args()
     list_of_dfs = []
-    for i in range(5):
+    for i in range(2):
         train_best_loss, train_best_acc1, _, best_loss, best_acc1, __= start_train(args)
 
         output_df = cal_g(args)
