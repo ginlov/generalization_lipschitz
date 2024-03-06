@@ -183,10 +183,11 @@ if __name__ == "__main__":
     parser = argparse.ArgumentParser()
     add_dict_to_argparser(parser, default_config())
     parser.add_argument("--model_checkpoint", type=str, default="model_best.pth.tar")
+    parser.add_arugment("--num_runs", type=int, default=5)
 
     args = parser.parse_args()
     list_of_dfs = []
-    for i in range(5):
+    for i in range(args.num_runs):
         train_best_loss, train_best_acc1, _, best_loss, best_acc1, __= start_train(args)
 
         output_df = cal_related_terms(args)
