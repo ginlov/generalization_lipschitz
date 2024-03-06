@@ -183,7 +183,7 @@ if __name__ == "__main__":
     parser = argparse.ArgumentParser()
     add_dict_to_argparser(parser, default_config())
     parser.add_argument("--model_checkpoint", type=str, default="model_best.pth.tar")
-    parser.add_arugment("--num_runs", type=int, default=5)
+    parser.add_argument("--num_runs", type=int, default=5)
 
     args = parser.parse_args()
     list_of_dfs = []
