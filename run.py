@@ -58,7 +58,7 @@ def the_rest_of_theorem_five(list_of_a, list_of_local_loss, list_of_num_item, nu
     return torch.sum(torch.tensor(list_of_num_item) * (torch.tensor(list_of_a) - torch.tensor(list_of_local_loss))) / num_items
 
 
-def cal_g(args):
+def cal_related_terms(args):
     model = create_model_from_config(args)
     if args.model not in ["resnet18_imagenet", "regnet_imagenet"]:
         model_checkpoint = torch.load(args.model_checkpoint, map_location="cpu")
@@ -186,10 +186,10 @@ if __name__ == "__main__":
 
     args = parser.parse_args()
     list_of_dfs = []
-    for i in range(2):
+    for i in range(5):
         train_best_loss, train_best_acc1, _, best_loss, best_acc1, __= start_train(args)
 
-        output_df = cal_g(args)
+        output_df = cal_related_terms(args)
         output_df["train_loss"] = [train_best_loss]*output_df.shape[0]
         output_df["train_acc"] = [train_best_acc1.detach().cpu().item()]*output_df.shape[0]
         output_df["loss"] = [best_loss]*output_df.shape[0]

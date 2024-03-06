@@ -7,7 +7,7 @@ from torchvision.datasets.imagenet import load_meta_file
 from torchvision.transforms.transforms import ToTensor
 from utils.constant import MODEL_CONFIG, MODEL_MAP
 from torchvision import transforms, datasets
-from torchvision.models import resnet18, ResNet18_Weights, regnet_y_400mf, RegNet_Y_400MF_Weights, shufflenet_v2_x1_0, shufflenet_v2_x1_5, shufflenet_v2_x2_0
+from torchvision.models import resnet18, ResNet18_Weights, regnet_y_400mf, RegNet_Y_400MF_Weights, shufflenet_v2_x1_0, shufflenet_v2_x1_5, shufflenet_v2_x2_0, efficientnet_v2_s, efficientnet_v2_m, efficientnet_v2_l
 from PIL import Image
 
 import argparse
@@ -138,6 +138,12 @@ def create_model_from_config(
         return shufflenet_v2_x1_5()
     elif args.model == "shufflenet3":
         return shufflenet_v2_x2_0()
+    elif args.model == "efficientnet1":
+        return efficientnet_v2_s()
+    elif args.model == "efficientnet2":
+        return efficientnet_v2_m()
+    elif args.model == "efficientnet3":
+        return efficientnet_v2_l()
     config = MODEL_CONFIG[args.model]
     if args.model_type == 2:
         if args.norm_type == "BN":
