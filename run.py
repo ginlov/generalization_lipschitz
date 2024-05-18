@@ -108,6 +108,7 @@ def cal_related_terms(args):
     list_of_rows = []
     for num_cluster in num_cluster_list:
         five_times_g_values = [[], [], []]
+        five_times_local_sen = []
         five_times_robustness = []
         five_times_theorem_five = []
         five_times_local_robustness = []
@@ -118,6 +119,7 @@ def cal_related_terms(args):
             list_of_local_loss = []
 
             local_robustness_cluster_shape = []
+            local_sen = []
             local_robustness = []
 
             centroids = select_partition_centroid(num_cluster, valid_dataset)
@@ -136,7 +138,9 @@ def cal_related_terms(args):
                     #local robustness
                     local_robustness_cluster_shape.append(cluster_loss.shape[0])
                     loss_subtraction = torch.abs(torch.cdist(cluster_valid_loss.reshape(-1, 1), cluster_loss.reshape(-1, 1)))
+                    a_local_sen = torch.mean(loss_subtraction.reshape(-1)).item()
                     a_local_robustness = torch.max(loss_subtraction.reshape(-1)).item()
+                    local_sen.append(a_local_sen)
                     local_robustness.append(a_local_robustness)
                 else:
                     list_of_a.append(cluster_loss.mean().item())
@@ -148,10 +152,11 @@ def cal_related_terms(args):
 
             total_loss_subtraction = torch.abs(torch.cdist(torch.tensor(valid_loss).reshape(-1, 1), torch.tensor(train_loss).reshape(-1, 1)))
             robustness = torch.max(total_loss_subtraction.reshape(-1)).item()
+            local_sen = np.sum(np.array(local_robustness_cluster_shape)*np.array(local_sen)) / np.sum(local_robustness_cluster_shape)
             local_robustness = np.sum(np.array(local_robustness_cluster_shape)*np.array(local_robustness)) / np.sum(local_robustness_cluster_shape)
-
             the_rest_theorem_five = the_rest_of_theorem_five(list_of_local_loss=list_of_local_loss, list_of_a = list_of_a, list_of_num_item=list_of_num_item, num_items=num_items)
             five_times_robustness.append(robustness)
+            five_times_local_sen.append(local_sen)
             five_times_local_robustness.append(local_robustness)
             five_times_theorem_five.append(the_rest_theorem_five)
         list_of_rows.append({
@@ -173,11 +178,13 @@ def cal_related_terms(args):
             # "theorem 3 variance": torch.var(torch.tensor(five_times_robustness)).item(),
             "theorem 4 mean": torch.mean(torch.tensor(five_times_local_robustness)).item(),
             # "theorem 4 variance": torch.var(torch.tensor(five_times_local_robustness)).item(),
+            "local sen mean": torch.mean(torch.tensor(five_times_local_sen)).item(),
             "theorem 5 mean": torch.mean(torch.tensor(five_times_theorem_five)).item(),
             # "theorem 5 variance": torch.var(torch.tensor(five_times_theorem_five)).item()
         })
 
     return pd.DataFrame(list_of_rows)
+
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
