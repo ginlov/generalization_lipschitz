@@ -10,7 +10,7 @@ import numpy as np
 import torch
 import pandas as pd
 
-num_cluster_list = [100, 1000, 5000, 10000]
+num_cluster_list = [100, 500, 1000, 10000]
 sigma_list = [0.01, 0.05, 0.1]
 # sigma = 0.01
 

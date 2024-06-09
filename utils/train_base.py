@@ -156,6 +156,8 @@ def train_epoch(model, train_loader, optimizer, loss_fn, device, log_file, log_f
     model.train()
     end = time.time()
 
+    len_train_loader = len(train_loader)
+
     for i, (image, target) in enumerate(train_loader):
         ########################
         ## LOADING DATA TIME ###
@@ -185,7 +187,8 @@ def train_epoch(model, train_loader, optimizer, loss_fn, device, log_file, log_f
         batch_time.update(time.time() - end)
         end = time.time()
 
-        if i % 100 == 0:
+        # if i % 100 == 0:
+        if i == len_train_loader - 1:
             progress.display(i + 1)
 
         if (i+1) % 30 == 0 and epoch < 4:
