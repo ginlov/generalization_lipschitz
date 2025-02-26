@@ -291,6 +291,11 @@ def create_augmented_dataset(
     )
 
 def loss_l1(y_pred, y_true):
-    label_pred = torch.argmax(y_pred, dim=1)
+    if isinstance(y_pred, np.ndarray):
+        label_pred = torch.tensor(y_pred)
+    else:
+        label_pred = torch.argmax(y_pred, dim=1)
+    if isinstance(y_true, np.ndarray):
+        y_true = torch.tensor(y_true)
     loss = (label_pred != y_true).int().float() * 2
     return loss

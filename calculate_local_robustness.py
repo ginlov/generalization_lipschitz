@@ -2,17 +2,25 @@ from utils.utils import default_config, add_dict_to_argparser, create_model_from
 from utils.split_partitions import *
 from torch.utils import data
 from torchvision import transforms
+from sklearn.svm import LinearSVC
+from sklearn.ensemble import AdaBoostClassifier
+from tqdm import tqdm
 
 import torch
 import argparse
 import numpy as np
+import joblib
 
 num_clusters =  [100, 1000, 5000, 10000]
 
 def cal_local_robustness(args):
     model = create_model_from_config(args)
-    model_checkpoint = torch.load(args.model_checkpoint, map_location="cpu")
-    model.load_state_dict(model_checkpoint["state_dict"])
+    if args.model_checkpoint.endswith(".pth.tar"):
+        model_checkpoint = torch.load(args.model_checkpoint, map_location="cpu")
+        model.load_state_dict(model_checkpoint["state_dict"])
+    elif args.model_checkpoint.endswith(".pkl"):
+        model = joblib.load(args.model_checkpoint)
+
 
     train_dataset, val_dataset = load_dataset(args.dataset)
     if isinstance(train_dataset, CustomDataset):
@@ -29,31 +37,60 @@ def cal_local_robustness(args):
 
     val_output = []
     train_output = []
-    device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
-    model.to(device)
-    # loss_func.to(device)
-    model.eval()
+    if args.model_checkpoint.endswith(".pth.tar"):
+        device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+        model.to(device)
+        # loss_func.to(device)
+        model.eval()
 
-    ## Feed dataset through nn
-    with torch.no_grad():
+        ## Feed dataset through nn
+        with torch.no_grad():
+            for batch in val_dataloader:
+                output = torch.nn.functional.softmax(model(batch[0].to(device)), dim=1)
+                val_output.append(output.detach().cpu())
+            for batch in train_dataloader:
+                output = torch.nn.functional.softmax(model(batch[0].to(device)), dim=1)
+                train_output.append(output.detach().cpu())
+        val_output = torch.concatenate(val_output)
+        train_output = torch.concatenate(train_output)
+        _, num_class = val_output.shape
+    elif isinstance(model, LinearSVC):
+        num_class = 0
         for batch in val_dataloader:
-            output = torch.nn.functional.softmax(model(batch[0].to(device)), dim=1)
-            val_output.append(output.detach().cpu())
+            output = model.predict(batch[0].reshape(batch[0].shape[0], -1).numpy())
+            val_output.append(output)
         for batch in train_dataloader:
-            output = torch.nn.functional.softmax(model(batch[0].to(device)), dim=1)
-            train_output.append(output.detach().cpu())
-    val_output = torch.concatenate(val_output)
-    train_output = torch.concatenate(train_output)
-    _, num_class = val_output.shape
+            output = model.predict(batch[0].reshape(batch[0].shape[0], -1).numpy())
+            train_output.append(output)
+            num_class = max(num_class, batch[1].max().item())
+        val_output = np.concatenate(val_output)
+        train_output = np.concatenate(train_output)
+        val_output = torch.Tensor(val_output)
+        train_output = torch.Tensor(train_output)
+        val_output = torch.nn.functional.one_hot(val_output.long(), num_class).float()
+        train_output = torch.nn.functional.one_hot(train_output.long(), num_class).float()
+    elif isinstance(model, AdaBoostClassifier):
+        for batch in val_dataloader:
+            output = model.predict_proba(batch[0].reshape(batch[0].shape[0], -1).numpy())
+            val_output.append(output)
+        for batch in train_dataloader:
+            output = model.predict_proba(batch[0].reshape(batch[0].shape[0], -1).numpy())
+            train_output.append(output)
+        val_output = np.concatenate(val_output)
+        train_output = np.concatenate(train_output)
+        print(val_output.shape)
+        print(val_output.sum(axis=1))
+        val_output = torch.Tensor(val_output)
+        train_output = torch.Tensor(train_output)
     # val_output = torch.nn.functional.one_hot(torch.argmax(val_output, dim=1), num_class).float()
     # train_output = torch.nn.functional.one_hot(torch.argmax(train_output, dim=1), num_class).float()
 
     epsilon_bound_2_list = []
 
-    for num_cluster in num_clusters:
+    for num_cluster in tqdm(num_clusters, desc="Processing clusters"):
         temp_epsilon_bound_2_list = []
 
-        for _ in range(10):
+        for _ in tqdm(range(10), desc=f"Processing {num_cluster} clusters"):
             centroids = select_partition_centroid(num_cluster, val_dataset)
             train_indices = assign_partition(train_dataset, centroids)
             test_indices = assign_partition(val_dataset, centroids)
